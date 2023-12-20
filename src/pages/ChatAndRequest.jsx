@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import Header from "../components/Header";
 import LeftBar from "../components/LeftBar";
@@ -6,7 +6,7 @@ import Feed from "../components/Feed";
 import Button from "../components/Button";
 import MatchMeter from "../components/MatchMeter";
 import { Typography, Chip, Checkbox } from "@material-tailwind/react";
-import { Card, CardHeader, CardBody} from "@material-tailwind/react";
+import { Card, CardHeader, CardBody } from "@material-tailwind/react";
 import {
   Tabs,
   TabsHeader,
@@ -15,7 +15,11 @@ import {
   TabPanel,
   IconButton,
 } from "@material-tailwind/react";
+
 import { ThemeProvider } from "@material-tailwind/react";
+import FriendCard from "../components/FriendCard";
+import FriendRecievedCard from "../components/FriendRecievedCard";
+
 function ChatAndRequest() {
   const customTheme = {
     tabsHeader: {
@@ -78,31 +82,49 @@ function ChatAndRequest() {
       },
     },
   };
+
   //   const data = null;
-  const data = [
-    {
-      label: "HTML",
-      value: "html",
-      desc: `It really matters and then like it really doesn't matter.
-      What matters is the people who are sparked by it. And the people 
-      who are like offended by it, it doesn't matter.`,
-    },
-    {
-      label: "React",
-      value: "react",
-      desc: `Because it's about motivating the doers. Because I'm here
-      to follow my dreams and inspire other people to follow their dreams, too.`,
-    },
-    {
-      label: "Vue",
-      value: "vue",
-      desc: `We're not always in the position that we want to be at.
-      We're constantly growing. We're constantly making mistakes. We're
-      constantly trying to express ourselves and actualize our dreams.`,
-    },
-  ];
+
+  const [sentRequests, setSentRequests] = useState(null);
+  const [putRequests, setPutRequests] = useState(null);
   const [favouriteButton, unsetFavouriteButton] = useState("fill-red-400");
   const [favouriteButtonOutline, unsetFavouriteButtonOutline] = useState("");
+
+  useEffect(() => {
+    const getData = async () => {
+      const response = await fetch(
+        "http://localhost:3000/friends/sent-requests",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: "6572343b20e0ba4957caf1fa" }),
+        }
+      );
+
+      const result = await response.json();
+      setSentRequests(result.message);
+      // console.log(result);
+      // return result.message;
+    };
+    const putData = async () => {
+      const response = await fetch(
+        "http://localhost:3000/friends/received-requests",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ receiverId: "6572343b20e0ba4957caf1fa" }),
+        }
+      );
+
+      const result = await response.json();
+      setPutRequests(result.message);
+      // console.log(result);
+      // return result.message;
+    };
+
+    getData();
+    putData();
+  }, []);
 
   function handlefavourite() {
     unsetFavouriteButton("fill-none");
@@ -115,7 +137,7 @@ function ChatAndRequest() {
         <Header />
         <div className="grid grid-cols-12 h-screen mb-10">
           <div className="col-span-1 lg:pr-2 md:pr-1 ">
-            <LeftBar activeAt={2}/>
+            <LeftBar activeAt={2} />
           </div>
           {/* <div className="h-full col-span-11">
             <ProfileSettings/>
@@ -195,7 +217,14 @@ function ChatAndRequest() {
                         <TabPanel key="Request Sent" value="Request Sent">
                           <div className="mt-4">
                             <ul className="flex flex-col">
-                              <li className="h-24">
+                              {sentRequests?.map((result) => (
+                                <FriendCard
+                                  name={result.firstName}
+                                  status={result.status}
+                                  image=""
+                                />
+                              ))}
+                              {/* <li className="h-24">
                                 <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
                                   <CardHeader
                                     shadow={false}
@@ -287,7 +316,7 @@ function ChatAndRequest() {
                                     </div>
                                   </CardBody>
                                 </Card>
-                              </li>
+                              </li> */}
                             </ul>
                           </div>
                         </TabPanel>
@@ -297,7 +326,17 @@ function ChatAndRequest() {
                         >
                           <div className="mt-4">
                             <ul className="flex flex-col">
-                              <li className="h-24">
+                              {putRequests?.map((result) => {
+                                // console.log(result.firstName);
+                                return (
+                                  <FriendRecievedCard name={result.firstName}>
+                                    <button>Accept</button>
+                                    <button>Reject</button>
+                                  </FriendRecievedCard>
+                                );
+                              })}
+
+                              {/* <li className="h-24">
                                 <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
                                   <CardHeader
                                     shadow={false}
@@ -334,7 +373,7 @@ function ChatAndRequest() {
                                     </div>
                                   </CardBody>
                                 </Card>
-                              </li>
+                              </li> */}
                             </ul>
                           </div>
                         </TabPanel>
