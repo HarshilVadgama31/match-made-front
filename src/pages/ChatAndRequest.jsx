@@ -19,6 +19,7 @@ import {
 import { ThemeProvider } from "@material-tailwind/react";
 import FriendCard from "../components/FriendCard";
 import FriendRecievedCard from "../components/FriendRecievedCard";
+import FavouriteCard from "../components/FavouriteCard";
 
 function ChatAndRequest() {
   const customTheme = {
@@ -87,8 +88,7 @@ function ChatAndRequest() {
 
   const [sentRequests, setSentRequests] = useState(null);
   const [putRequests, setPutRequests] = useState(null);
-  const [favouriteButton, unsetFavouriteButton] = useState("fill-red-400");
-  const [favouriteButtonOutline, unsetFavouriteButtonOutline] = useState("");
+  const [favourites, setFavourites] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -122,13 +122,52 @@ function ChatAndRequest() {
       // return result.message;
     };
 
+    const getFavourites = async () => {
+
+      const response = await fetch("http://localhost:3000/user/favourites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: "6572343b20e0ba4957caf1fa" }),
+      });
+
+      const result = await response.json();
+
+      // console.log(result);
+      setFavourites(result.message);
+      // return result.message;
+    };
+
     getData();
     putData();
+    getFavourites();
   }, []);
 
-  function handlefavourite() {
-    unsetFavouriteButton("fill-none");
-    unsetFavouriteButtonOutline("currentColor");
+  async function onConsideredRequest(e) {
+    console.log(e.target.name);
+    const response = await fetch(
+      "http://localhost:3000/friends/update-request",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: e.target.name, status: "Accepted" }),
+      }
+    );
+
+    const result = await response.json();
+  }
+
+  async function onDeclinedRequest(e) {
+    console.log(e.target.name);
+    const response = await fetch(
+      "http://localhost:3000/friends/update-request",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: e.target.name, status: "Rejected" }),
+      }
+    );
+
+    const result = await response.json();
   }
 
   return (
@@ -219,6 +258,7 @@ function ChatAndRequest() {
                             <ul className="flex flex-col">
                               {sentRequests?.map((result) => (
                                 <FriendCard
+                                  id={result._id}
                                   name={result.firstName}
                                   status={result.status}
                                   image=""
@@ -329,9 +369,24 @@ function ChatAndRequest() {
                               {putRequests?.map((result) => {
                                 // console.log(result.firstName);
                                 return (
-                                  <FriendRecievedCard name={result.firstName}>
-                                    <button>Accept</button>
-                                    <button>Reject</button>
+                                  <FriendRecievedCard
+                                    name={result.firstName}
+                                    id={result._id}
+                                  >
+                                    <button
+                                      name={result.requestId}
+                                      className="px-4 border-[1.75px] rounded-lg hover:border-green-500 bg-green-100 text-black/70 text-sm font-bold"
+                                      onClick={onConsideredRequest}
+                                    >
+                                      CONSIDER
+                                    </button>
+                                    <button
+                                      name={result.requestId}
+                                      className="px-4 rounded-md hover:bg-red-200/50 text-black/70 text-sm font-bold"
+                                      onClick={onDeclinedRequest}
+                                    >
+                                      DECLINE
+                                    </button>
                                   </FriendRecievedCard>
                                 );
                               })}
@@ -380,7 +435,12 @@ function ChatAndRequest() {
                         <TabPanel key="Favourites" value="Favourites">
                           <div className="mt-4">
                             <ul className="flex flex-col">
-                              <li className="h-24">
+                              {favourites?.map((result)=>{
+                                return(<FavouriteCard name={result.firstName} id={result._id}/>)
+                              })
+
+                              }
+                              {/* <li className="h-24">
                                 <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
                                   <CardHeader
                                     shadow={false}
@@ -440,7 +500,7 @@ function ChatAndRequest() {
                                     </div>
                                   </CardBody>
                                 </Card>
-                              </li>
+                              </li> */}
                             </ul>
                           </div>
                         </TabPanel>

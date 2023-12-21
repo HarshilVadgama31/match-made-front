@@ -79,22 +79,24 @@ function MatchFeed() {
   //   // }
   // }, []);
 
+  
   const fetchData = async () => {
     try {
       const response = await fetch(
-        "http://192.168.1.7:3000/api/account/search/partner",
+        "http://localhost:3000/user/match-feed",
         {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: "6572343b20e0ba4957caf1fa" }),
         }
       );
       const json = await response.json();
 
-      setData(json.data.documents);
+      setData(json.message);
     } catch (error) {
       console.log(error);
     }
   };
-
   useEffect(() => {
     fetchData();
   }, []);

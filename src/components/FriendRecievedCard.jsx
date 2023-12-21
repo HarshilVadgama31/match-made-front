@@ -7,9 +7,9 @@ import {
   Chip,
 } from "@material-tailwind/react";
 
-function FriendRecievedCard({ name, image, children }) {
+function FriendRecievedCard({ name, image, children, id }) {
   return (
-    <li className="h-24">
+    <li className="h-24" key={id}>
       <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
         <CardHeader
           shadow={false}
