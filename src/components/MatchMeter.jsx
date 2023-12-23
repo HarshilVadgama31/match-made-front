@@ -6,7 +6,7 @@ function MatchMeter({ clicked }) {
   return (
     <>
       <div className="hidden md:h-full md:grid md:grid-cols-1 md:w-full rounded-bl-xl rounded-tl-xl bg-card_light dark:bg-card_dark">
-        <div className="justify-center flex flex-col gap-4 dark:text-bg_light items-center">
+        <div className="justify-center flex flex-col gap-4 text-bg_dark dark:text-bg_light items-center">
           <p className="">Match Meter</p>
           <p className=" text-5xl font-semibold">86%</p>
 

@@ -505,7 +505,7 @@ function ChatAndRequest() {
                           </div>
                         </TabPanel>
                       </TabsBody>
-                    </Tabs>
+                    </Tabs>z
                   </ThemeProvider>
                 </div>
               </div>
@@ -515,7 +515,7 @@ function ChatAndRequest() {
 
           {/* Chat Option Section */}
           <div
-            className={`relative lg:col-span-3 md:col-span-11 col-span-12 rounded-2xl md:mr-2 lg:mr-0 bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl dark:bg-card_dark dark:text-bg_light`}
+            className={`relative lg:col-span-3 md:col-span-11 col-span-12 md:mr-2 lg:mr-0 bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl dark:bg-card_dark dark:text-bg_light`}
           >
             <Typography variant="h4" className="mt-8 ml-8">
               Chats

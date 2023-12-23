@@ -13,7 +13,7 @@ function Feed({ children }) {
       <div className=" md:grid md:grid-cols-2 lg:grid-cols-3 lg:gap-4 md:gap-2 md:overflow-scroll md:max-h-[82vh]">
         {/* 1st Column (Span - 1)*/}
         <div className="md:px-4 md:col-span-2 lg:col-span-1">
-          <div className="">
+          <div className="flex">
             <CarouselDefault />
           </div>
           <div className="md:mt-4 md:flex md:gap-4">
@@ -78,7 +78,7 @@ function Feed({ children }) {
         <div className=" max-h-[82vh] md:col-span-2 mx-4 flex flex-col gap-6 dark:text-bg_light text-bg_dark lg:overflow-scroll">
           {/* Name, Location & Horoscope */}
           <div className="flex flex-col gap-0">
-            <p class="text-4xl mt-6 font-semibold text-black/80 dark:text-bg_light">
+            <p class="text-4xl mt-2 font-semibold text-black/80 dark:text-bg_light">
               {children.firstName + " " + children.lastName}
             </p>
             <p class="text-lg font-light text-black/70 dark:text-bg_light/70">
@@ -183,7 +183,7 @@ function Feed({ children }) {
               <div className="flex flex-col justify-between">
                 <p className="text-xs dark:text-bg_light/60">Education</p>
                 <Typography variant="h5">{children.qualification}</Typography>
-                <Typography variant="h5">{children.university}</Typography>
+                {/* <Typography variant="h5">{children.motherTongue}</Typography> */}
               </div>
             </div>
             {/* Background */}

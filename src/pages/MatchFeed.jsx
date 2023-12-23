@@ -5,6 +5,7 @@ import Feed from "../components/Feed";
 import MatchMeter from "../components/MatchMeter";
 import ProfileSettings from "../components/ProfileSettings";
 import IconButton from "../components/IconButton";
+import PremiumDialog from "../components/PremiumDialog";
 
 function MatchFeed() {
   const [mvalue, setMvalue] = useState("col-span-2");
@@ -79,17 +80,13 @@ function MatchFeed() {
   //   // }
   // }, []);
 
-  
   const fetchData = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:3000/user/match-feed",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: "6572343b20e0ba4957caf1fa" }),
-        }
-      );
+      const response = await fetch("http://localhost:3000/user/match-feed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: "6572343b20e0ba4957caf1fa" }),
+      });
       const json = await response.json();
 
       setData(json.message);
@@ -118,21 +115,32 @@ function MatchFeed() {
         <Header />
         <div className="grid grid-cols-12 h-screen mb-10">
           <div className="col-span-1 lg:pr-2 md:pr-1">
-            <LeftBar activeAt={1}/>
+            <LeftBar activeAt={1} />
           </div>
           {/* <div className="h-full col-span-11">
             <ProfileSettings/>
           </div> */}
           <div className={`h-full ${fvalue} lg:pr-2 md:pr-1`}>
             <div className="hidden md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark">
-              <div className="md:h-12 flex justify-between items-center mx-6">
-                <span>Personal Preferences</span>
+              <div className="md:h-12 flex justify-between items-center mx-6 my-4">
+                <span>
+                  <PremiumDialog>
+                    <svg
+                      className="w-4 h-4 mx-2"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M21 18V21H19V18H17V16H23V18H21ZM5 18V21H3V18H1V16H7V18H5ZM11 6V3H13V6H15V8H9V6H11ZM11 10H13V21H11V10ZM3 14V3H5V14H3ZM19 14V3H21V14H19Z"
+                        fill="currentColor"
+                      ></path>
+                    </svg>
+                    <span className="mr-2">Personal Preference</span>
+                  </PremiumDialog>
+                </span>
                 {data && (
                   <div className=" text-bg_dark dark:text-bg_light  mt-4">
-                    <button
-                      disabled={currentIndex === 0}
-                      onClick={handlePrev}
-                    >
+                    <button disabled={currentIndex === 0} onClick={handlePrev}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"

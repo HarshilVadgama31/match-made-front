@@ -1,10 +1,10 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import io from "socket.io-client";
 import Header from "../components/Header";
 import LeftBar from "../components/LeftBar";
-import Feed from "../components/Feed";
 import Button from "../components/Button";
-import MatchMeter from "../components/MatchMeter";
+
 import {
   Typography,
   Chip,
@@ -12,7 +12,7 @@ import {
   Textarea,
   IconButton,
 } from "@material-tailwind/react";
-import { Card, CardHeader, CardBody } from "@material-tailwind/react";
+
 import {
   Tabs,
   TabsHeader,
@@ -27,9 +27,14 @@ import axios from "axios";
 import Conversation from "../components/Conversation";
 
 function Chat() {
-  const [conversation, setConversation] = useState([]);
 
+  const [conversationId, setConversationId] = useState("6572e52ade9c5c60389b7147");
+  const [conversation, setConversation] = useState([]);
+  const [message, setMessage] = useState("");
+
+  // MAKE STATICS VALUES - DYNAMIC
   const userId = "65661c786bd9afa3c606938d";
+  const socket = io("http://localhost:3000");
 
   useEffect(() => {
     const getConversations = async () => {
@@ -48,99 +53,68 @@ function Chat() {
     getConversations();
   }, [userId]);
 
-  //   console.log(object);
+  useEffect(() => {
+    socket.on("connection", (res) => {
+      console.log("Connection ID" + res.id);
+      
+      // Convesation ID
+      socket.emit("get-id",conversationId);
+      
+      socket.on("connection-id", (newId) => {
+        console.log("User Connection ID: " + newId);
+        setConversationId(newId);
+      });
+      
+      
+    });
+    socket.on("message", (newMessage) => {
+      console.log("User Message: " + message);
+      setConversation((preMessages) => [...preMessages, newMessage]);
+    });
+    
+    
+    socket.on("reconnect_error", (error) => {
+      socket.disconnect();
+    });
 
-  const customTheme = {
-    tabsHeader: {
-      defaultProps: {
-        className: "",
+    socket.on("connect_error", (error) => {
+      console.log(error);
+      socket.disconnect();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const sendMessage = () => {
+    // EMIT MESSAGE TO BACKEND
+    socket.emit("message", {
+      chatid: conversationId,
+      senderid: "6572343b20e0ba4957caf1fa",
+      texts: message,
+    });
+
+    setMessage((prevMessage) => [
+      ...prevMessage,
+      {
+        chatid: conversationId,
+        senderid: "6572343b20e0ba4957caf1fa",
+        text: message,
       },
-      styles: {
-        base: {
-          bg: "bg-bg_light dark:bg-bg_dark",
-          bgOpacity: "bg-opacity-100",
-        },
+    ]);
+
+    setConversation((prevConversation) => [
+      ...prevConversation,
+      {
+        chatid: conversationId,
+        senderid: "6572343b20e0ba4957caf1fa",
+        text: message,
       },
-    },
-    tab: {
-      defaultProps: {
-        className: "",
-        activeClassName: "",
-        disabled: false,
-      },
-      styles: {
-        base: {
-          tab: {
-            initial: {
-              display: "flex",
-              alignItems: "items-center",
-              justifyContent: "justify-center",
-              textAlign: "text-center",
-              width: "w-full",
-              height: "h-full",
-              position: "relative",
-              bg: "bg-transparent",
-              py: "py-1",
-              px: "px-2",
-              color: "text-bg_dark dark:text-bg_light",
-              fontSmoothing: "antialiased",
-              fontFamily: "font-sans",
-              fontSize: "text-xl",
-              fontWeight: "font-normal",
-              lineHeight: "leading-relaxed",
-              userSelect: "select-none",
-              cursor: "cursor-pointer",
-            },
-            disabled: {
-              opacity: "opacity-50",
-              cursor: "cursor-not-allowed",
-              pointerEvents: "pointer-events-none",
-              userSelect: "select-none",
-            },
-          },
-          indicator: {
-            position: "absolute",
-            inset: "inset-0",
-            zIndex: "z-10",
-            height: "h-full",
-            bg: "bg-button_light dark:bg-card_dark",
-            borderRadius: "rounded-md",
-            boxShadow: "shadow",
-          },
-        },
-      },
-    },
+    ]);
+
+    setMessage("");
   };
-  //   const data = null;
-  const data = [
-    {
-      label: "HTML",
-      value: "html",
-      desc: `It really matters and then like it really doesn't matter.
-          What matters is the people who are sparked by it. And the people 
-          who are like offended by it, it doesn't matter.`,
-    },
-    {
-      label: "React",
-      value: "react",
-      desc: `Because it's about motivating the doers. Because I'm here
-          to follow my dreams and inspire other people to follow their dreams, too.`,
-    },
-    {
-      label: "Vue",
-      value: "vue",
-      desc: `We're not always in the position that we want to be at.
-          We're constantly growing. We're constantly making mistakes. We're
-          constantly trying to express ourselves and actualize our dreams.`,
-    },
-  ];
-  const [favouriteButton, unsetFavouriteButton] = useState("fill-red-400");
-  const [favouriteButtonOutline, unsetFavouriteButtonOutline] = useState("");
-
-  function handlefavourite() {
-    unsetFavouriteButton("fill-none");
-    unsetFavouriteButtonOutline("currentColor");
-  }
 
   return (
     <>
@@ -153,7 +127,7 @@ function Chat() {
 
           {/* Chat Section &  dynamic hidden */}
           <div
-            className={`h-full lg:col-span-8 hidden lg:grid lg:pr-2 md:pr-1`}
+            className={`h-full lg:col-span-8 hidden lg:grid lg:pr-2 md:pr-1 text-bg_dark`}
           >
             <div className="hidden md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark">
               {/* Chat Header */}
@@ -219,15 +193,17 @@ function Chat() {
               <div className="flex-auto p-8 h-[70vh] overflow-y-scroll">
                 <div className="flex flex-col gap-3">
                   {/* Date Tags */}
+
                   <MessageDateChip>Became friends on 02 Nov</MessageDateChip>
                   {/* Other Side Message */}
+                  {/* <Message our={false} />
                   <Message our={false} />
-                  <Message our={false} />
-                  <Message our={false} />
+                  <Message our={false} /> */}
 
                   {/* Date Tags */}
                   <div className="flex justify-center">
                     <Chip
+                      id="date"
                       value="25 Nov"
                       className="rounded-full w-min bg-button_light/40 text-black/70 dark:bg-button_dark/50 dark:text-white/70"
                     />
@@ -237,13 +213,16 @@ function Chat() {
                     Hello there!Hello there! Hello there! Hello there! Hello
                     there! Hello there! Hello there! ♦
                   </Message>
-                  <Message our={true} />
-                  <Message our={true} />
-                  <Message our={true} />
-                  <Message our={true}>
-                    Heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeyyyyyyyy!!!
-                  </Message>
-                  <Message our={true} />
+                  {conversation.map((content) => {
+                    return (
+                      <Message
+                        id={content.texts}
+                        our={content.senderid == "6572343b20e0ba4957caf1fa"}
+                      >
+                        {content.text}
+                      </Message>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -281,11 +260,14 @@ function Chat() {
                     labelProps={{
                       className: "before:content-none after:content-none",
                     }}
+                    onChange={(e) => setMessage(e.target.value)}
+                    value={message}
                   />
                   <div>
                     <IconButton
                       variant="text"
                       className="rounded-full  dark:text-white"
+                      onClick={sendMessage}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -310,7 +292,7 @@ function Chat() {
 
           {/* Chat Option Section */}
           <div
-            className={`relative lg:col-span-3 md:col-span-11 col-span-12 rounded-2xl md:mr-2 lg:mr-0 bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl dark:bg-card_dark dark:text-bg_light`}
+            className={`relative lg:col-span-3 md:col-span-11 col-span-12 md:mr-2 lg:mr-0 bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl text-bg_dark dark:bg-card_dark dark:text-bg_light`}
           >
             <Typography variant="h4" className="mt-8 ml-8">
               Chats
