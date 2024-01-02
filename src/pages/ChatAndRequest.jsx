@@ -174,8 +174,8 @@ function ChatAndRequest() {
     <>
       <div className="flex flex-col h-screen w-full bg-bg_light dark:bg-bg_dark">
         <Header />
-        <div className="grid grid-cols-12 h-screen mb-10">
-          <div className="col-span-1 lg:pr-2 md:pr-1 ">
+        <div className="grid grid-cols-12 h-full mb-10 gap-2">
+          <div className="col-span-1 h-[88vh]">
             <LeftBar activeAt={2} />
           </div>
           {/* <div className="h-full col-span-11">
@@ -183,9 +183,9 @@ function ChatAndRequest() {
           </div> */}
           {/* dynamic hidden */}
           <div
-            className={`h-full lg:col-span-8 hidden lg:grid lg:pr-2 md:pr-1`}
+            className={`h-full lg:col-span-8 hidden lg:grid`}
           >
-            <div className="hidden md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark">
+            <div className="hidden md:flex md:flex-col md:h-[88vh] rounded-xl bg-card_light dark:bg-card_dark">
               <div className="md:h-12 mx-6 mt-8">
                 <div className="pt-30 px-4 w-full">
                   <ThemeProvider value={customTheme}>

@@ -8,7 +8,7 @@ export default function Chips({ name }) {
   return (
     <>
       <Chip
-        className="mx-1 text-bg_dark bg-button_light dark:bg-button_dark"
+        className="mx-1 text-bg_dark bg-button_light dark:bg-button_dark dark:text-bg_light"
         
         value={name}
         onClose={(e) => {

@@ -5,6 +5,9 @@ import ChatAndRequest from "./pages/ChatAndRequest";
 import Chat from "./pages/Chat";
 import Register from "./pages/Register";
 import AstroMatch from "./pages/AstroMatch";
+import ProfileSettings from "./pages/ProfileSettings";
+
+import Home from "./pages/Home";
 
 function App() {
   return (
@@ -15,6 +18,9 @@ function App() {
         <Route path="/chat" element={<Chat />} />
         <Route path="/register" element={<Register />} />
         <Route path="/astromatch" element={<AstroMatch />} />
+        <Route path="/profile-settings" element={<ProfileSettings />} />
+
+        <Route path="/" element={<Home />} />
       </Routes>
     </BrowserRouter>
   );

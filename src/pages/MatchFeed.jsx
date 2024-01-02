@@ -113,14 +113,14 @@ function MatchFeed() {
     <>
       <div className="flex flex-col h-screen w-full bg-bg_light dark:bg-bg_dark">
         <Header />
-        <div className="grid grid-cols-12 h-screen mb-10">
-          <div className="col-span-1 lg:pr-2 md:pr-1">
+        <div className="grid grid-cols-12 h-full mb-10 gap-2">
+          <div className="col-span-1 h-[88vh]">
             <LeftBar activeAt={1} />
           </div>
           {/* <div className="h-full col-span-11">
             <ProfileSettings/>
           </div> */}
-          <div className={`h-full ${fvalue} lg:pr-2 md:pr-1`}>
+          <div className={`h-[88vh] ${fvalue}`}>
             <div className="hidden md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark">
               <div className="md:h-12 flex justify-between items-center mx-6 my-4">
                 <span>
@@ -182,7 +182,7 @@ function MatchFeed() {
             </div>
           </div>
           <div
-            className={`relative ${mvalue}`}
+            className={`relative ${mvalue} h-[88vh]`}
             onClick={() => handleClick(!click)}
           >
             <MatchMeter clicked={click} />

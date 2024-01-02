@@ -13,14 +13,6 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 
-import {
-  Tabs,
-  TabsHeader,
-  TabsBody,
-  Tab,
-  TabPanel,
-} from "@material-tailwind/react";
-import { ThemeProvider } from "@material-tailwind/react";
 import Message from "../components/Message";
 import MessageDateChip from "../components/MessageDateChip";
 import axios from "axios";
@@ -28,50 +20,55 @@ import Conversation from "../components/Conversation";
 
 function Chat() {
 
-  const [conversationId, setConversationId] = useState("6572e52ade9c5c60389b7147");
+  const [conversationId, setConversationId] = useState();
   const [conversation, setConversation] = useState([]);
   const [message, setMessage] = useState("");
 
   // MAKE STATICS VALUES - DYNAMIC
-  const userId = "65661c786bd9afa3c606938d";
+  const _senderId = "6571f16ba15ead32cc0a5907";
+  const _receiverId = "6572343b20e0ba4957caf1fa";
   const socket = io("http://localhost:3000");
 
   useEffect(() => {
     const getConversations = async () => {
       try {
-        // await fetch("http://localhost:3000/chat/65661c786bd9afa3c606938d")
-        //   .then((response) => response.json())
-        //   .then((json) => console.log(json));
-        const res = await axios.get(
-          "http://localhost:3000/chat/65661c786bd9afa3c606938d"
-        );
-        console.log(res);
+        const response = await fetch("http://localhost:3000/message/get-messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chatId: conversationId }),
+        });
+
+        const json = await response.json();
+        console.log(json);
+        setConversation(json.message);
       } catch (error) {
         console.log(error);
       }
     };
     getConversations();
-  }, [userId]);
+    
+  }, [conversationId]);
 
   useEffect(() => {
+    setConversationId("6572e52ade9c5c60389b7147");
     socket.on("connection", (res) => {
       console.log("Connection ID" + res.id);
-      
-      // Convesation ID
-      socket.emit("get-id",conversationId);
-      
-      socket.on("connection-id", (newId) => {
-        console.log("User Connection ID: " + newId);
-        setConversationId(newId);
-      });
-      
-      
     });
+      
+    socket.emit("get-id",{ senderId:_senderId, receiverId:_receiverId});
+    
+    // Convesation ID
+    socket.on("connection-id", (converse) => {
+      console.log("User conversation ID: " + converse.id);
+      console.log("Result: "+converse.result); 
+      // setConversationId(converse.result);
+      setConversationId("6572e52ade9c5c60389b7147");
+    });
+      
     socket.on("message", (newMessage) => {
       console.log("User Message: " + message);
       setConversation((preMessages) => [...preMessages, newMessage]);
     });
-    
     
     socket.on("reconnect_error", (error) => {
       socket.disconnect();
@@ -90,7 +87,7 @@ function Chat() {
   const sendMessage = () => {
     // EMIT MESSAGE TO BACKEND
     socket.emit("message", {
-      chatid: conversationId,
+      chatId: conversationId,
       senderid: "6572343b20e0ba4957caf1fa",
       texts: message,
     });
@@ -98,8 +95,8 @@ function Chat() {
     setMessage((prevMessage) => [
       ...prevMessage,
       {
-        chatid: conversationId,
-        senderid: "6572343b20e0ba4957caf1fa",
+        chatId: conversationId,
+        senderId: "6572343b20e0ba4957caf1fa",
         text: message,
       },
     ]);
@@ -107,8 +104,8 @@ function Chat() {
     setConversation((prevConversation) => [
       ...prevConversation,
       {
-        chatid: conversationId,
-        senderid: "6572343b20e0ba4957caf1fa",
+        chatId: conversationId,
+        senderId: "6572343b20e0ba4957caf1fa",
         text: message,
       },
     ]);
@@ -120,16 +117,16 @@ function Chat() {
     <>
       <div className="flex flex-col h-screen w-full bg-bg_light dark:bg-bg_dark">
         <Header />
-        <div className="grid grid-cols-12 h-screen mb-10">
-          <div className="col-span-1 lg:pr-2 md:pr-1 ">
+        <div className="grid grid-cols-12 h-full mb-10 gap-2">
+          <div className="col-span-1 h-[88vh]">
             <LeftBar />
           </div>
 
           {/* Chat Section &  dynamic hidden */}
           <div
-            className={`h-full lg:col-span-8 hidden lg:grid lg:pr-2 md:pr-1 text-bg_dark`}
+            className={`h-full lg:col-span-8 hidden lg:grid  text-bg_dark`}
           >
-            <div className="hidden md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark">
+            <div className="hidden md:flex md:flex-col md:h-[88vh] rounded-xl bg-card_light dark:bg-card_dark">
               {/* Chat Header */}
               <div className="w-full bg-button_light rounded-tr-2xl rounded-tl-2xl">
                 <div className="w-full rounded-tl-2xl rounded-tr-2xl bg-button_light dark:bg-button_dark dark:text-white flex">
@@ -190,7 +187,7 @@ function Chat() {
               </div>
 
               {/* Chat Body */}
-              <div className="flex-auto p-8 h-[70vh] overflow-y-scroll">
+              <div className="flex-auto p-8 h-[88vh] overflow-y-scroll">
                 <div className="flex flex-col gap-3">
                   {/* Date Tags */}
 
@@ -213,11 +210,11 @@ function Chat() {
                     Hello there!Hello there! Hello there! Hello there! Hello
                     there! Hello there! Hello there! ♦
                   </Message>
-                  {conversation.map((content) => {
+                  {conversation?.map((content) => {
                     return (
                       <Message
                         id={content.texts}
-                        our={content.senderid == "6572343b20e0ba4957caf1fa"}
+                        our={content.senderId == "6572343b20e0ba4957caf1fa"}
                       >
                         {content.text}
                       </Message>
@@ -292,7 +289,7 @@ function Chat() {
 
           {/* Chat Option Section */}
           <div
-            className={`relative lg:col-span-3 md:col-span-11 col-span-12 md:mr-2 lg:mr-0 bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl text-bg_dark dark:bg-card_dark dark:text-bg_light`}
+            className={`relative lg:col-span-3 md:col-span-11 col-span-12  bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl text-bg_dark dark:bg-card_dark dark:text-bg_light`}
           >
             <Typography variant="h4" className="mt-8 ml-8">
               Chats
