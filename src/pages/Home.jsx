@@ -108,7 +108,7 @@ function Home() {
         ) {
           setLoginOpen(true);
         } else {
-          navigate("/register");
+          navigate("/matchfeed");
         }
       })
       .catch((error) => console.log(error));

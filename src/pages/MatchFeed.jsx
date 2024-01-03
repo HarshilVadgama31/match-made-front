@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 import Header from "../components/Header";
 import LeftBar from "../components/LeftBar";
 import Feed from "../components/Feed";
@@ -6,8 +8,21 @@ import MatchMeter from "../components/MatchMeter";
 import ProfileSettings from "../components/ProfileSettings";
 import IconButton from "../components/IconButton";
 import PremiumDialog from "../components/PremiumDialog";
+import LoadingSkeleton from "../components/LoadingSkeleton";
 
 function MatchFeed() {
+  const navigate = useNavigate();
+  const [cookies, removeCookie] = useCookies([]);
+
+  useEffect(() => {
+    const verifyCookie = async () => {
+      if (!cookies.token) {
+        navigate("/");
+      }
+      verifyCookie();
+    };
+  }, [cookies]);
+
   const [mvalue, setMvalue] = useState("col-span-2");
   const [fvalue, setFvalue] = useState("col-span-9");
   const [click, setClick] = useState(false);
@@ -88,8 +103,9 @@ function MatchFeed() {
         body: JSON.stringify({ id: "6572343b20e0ba4957caf1fa" }),
       });
       const json = await response.json();
-
-      setData(json.message);
+      setTimeout(() => {
+        setData(json.message);
+      }, "3500");
     } catch (error) {
       console.log(error);
     }
@@ -178,7 +194,7 @@ function MatchFeed() {
                   </div>
                 )}
               </div>
-              {data && <Feed>{data[currentIndex]}</Feed>}
+              {data ? <Feed>{data[currentIndex]}</Feed> : <LoadingSkeleton />}
             </div>
           </div>
           <div

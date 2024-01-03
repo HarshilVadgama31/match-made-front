@@ -43,10 +43,10 @@ function PremiumDialog({ children }) {
             className="text-font_light dark:text-font_dark"
             variant="h4"
           >
-            You should read this!
+            Premium feature!
           </Typography>
           <Typography className="text-font_light/70 dark:text-font_dark/70 text-center font-normal">
-            A small river named
+            You need to buy premium to get access
           </Typography>
         </DialogBody>
         <DialogFooter>

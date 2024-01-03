@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import cookie from "universal-cookie";
 
 function LeftBar({ activeAt }) {
+  const navigate = useNavigate();
   const [pickAt, setPickAt] = useState("top-4");
   const [selectedOption, setSelectedOption] = useState(activeAt);
 
+  const handleLogout = (e) => {
+    e.preventDefault();
+    cookie.remove("")
+    navigate("/");
+  };
   useEffect(() => {
     if (selectedOption === 2) {
       setPickAt("top-24");
@@ -78,7 +85,9 @@ function LeftBar({ activeAt }) {
           ></div>
           <div className="flex flex-col items-center pb-8">
             {/* TODO: Logout function */}
-            <button onClick={() => {}}>
+            <button
+              onClick={handleLogout}
+            >
               <svg
                 width="35"
                 height="35"

@@ -9,7 +9,7 @@ export default function CarouselDefault() {
   ];
 
   return (
-    <Carousel className=" h-11/12 rounded-xl">
+    <Carousel className="rounded-xl">
       {imageUrls.map((imageUrl, index) => (
         <img
           key={index}
