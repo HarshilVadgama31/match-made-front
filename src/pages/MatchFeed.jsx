@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
+
 import Header from "../components/Header";
 import LeftBar from "../components/LeftBar";
 import Feed from "../components/Feed";
@@ -9,19 +10,20 @@ import ProfileSettings from "../components/ProfileSettings";
 import IconButton from "../components/IconButton";
 import PremiumDialog from "../components/PremiumDialog";
 import LoadingSkeleton from "../components/LoadingSkeleton";
+import axios from "axios";
 
 function MatchFeed() {
   const navigate = useNavigate();
   const [cookies, removeCookie] = useCookies([]);
 
-  useEffect(() => {
-    const verifyCookie = async () => {
-      if (!cookies.token) {
-        navigate("/");
-      }
-      verifyCookie();
-    };
-  }, [cookies]);
+  // useEffect(() => {
+  //   const verifyCookie = async () => {
+  //     if (!cookies.token) {
+  //       navigate("/");
+  //     }
+  //   };
+  //   verifyCookie();
+  // }, []);
 
   const [mvalue, setMvalue] = useState("col-span-2");
   const [fvalue, setFvalue] = useState("col-span-9");
@@ -97,15 +99,25 @@ function MatchFeed() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:3000/user/match-feed", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: "6572343b20e0ba4957caf1fa" }),
-      });
-      const json = await response.json();
+      const result = await axios.post(
+        "http://localhost:3000/user/match-feed",
+        "",
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+      // const response = await fetch("http://localhost:3000/user/match-feed", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ id: "65913b3acc825525476246e5" }),
+      // });
+      // const json = await response.json();
       setTimeout(() => {
-        setData(json.message);
-      }, "3500");
+        setData(result.data.message);
+      }, "300");
     } catch (error) {
       console.log(error);
     }
@@ -201,7 +213,11 @@ function MatchFeed() {
             className={`relative ${mvalue} h-[88vh]`}
             onClick={() => handleClick(!click)}
           >
-            <MatchMeter clicked={click} />
+            <div className="hidden md:h-full md:grid md:grid-cols-1 md:w-full rounded-bl-xl rounded-tl-xl bg-card_light dark:bg-card_dark">
+              {data && (
+                <MatchMeter clicked={click}>{data[currentIndex]}</MatchMeter>
+              )}
+            </div>
           </div>
         </div>
       </div>

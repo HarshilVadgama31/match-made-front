@@ -1,6 +1,7 @@
 import React, {useEffect} from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
+import MatchFeed from "./MatchFeed";
 
 const PrivateRoutes = () => {
 
@@ -9,15 +10,19 @@ const PrivateRoutes = () => {
 
   useEffect(() => {
     const verifyCookie = () => {
-      if (cookies.token) {
-        console.log(cookies);
-        auth.token = true;
+      if (!cookies.token) {
+
+        console.log(cookies.token);
+        <Navigate to="/home"/>
+        // console.log(auth.token);
+        // auth.token = true;
+        // console.log(auth.token);
       }
-      verifyCookie();
     };
+    verifyCookie();
   }, []);
 
-  return auth.token ? <Outlet /> : <Navigate to="/" />;
+  return <Outlet/>;
 };
 
 export default PrivateRoutes;

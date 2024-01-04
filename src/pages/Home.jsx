@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import LeftCard from "../components/LeftCard";
 import InputField from "../components/InputField";
@@ -21,6 +21,10 @@ import {
 } from "@material-tailwind/react";
 
 function Home() {
+  function refreshPage() {
+    window.location.reload(false);
+  }
+
   const customTheme = {
     tabsHeader: {
       defaultProps: {
@@ -109,6 +113,7 @@ function Home() {
           setLoginOpen(true);
         } else {
           navigate("/matchfeed");
+          refreshPage();
         }
       })
       .catch((error) => console.log(error));
@@ -134,16 +139,22 @@ function Home() {
         if (response.data.message === "User already exists") {
           setRegisterOpen(true);
         } else {
-          navigate("/matchfeed");
+          navigate("/register");
+          refreshPage();
         }
       })
       .catch((error) => console.log(error));
   };
+
+  // useEffect(() => {
+  //   navigate("/")
+  // },[]);
+
   return (
     <>
       <div className="flex flex-col h-screen w-full bg-bg_light dark:bg-bg_dark">
         <Header />
-        <div className="grid grid-cols-12 h-full mb-10 gap-2">
+        <div className="grid grid-cols-12 mb-10 gap-2">
           <section className="h-[88vh] lg:col-span-9 lg:grid hidden min-h-full bg-card_light bg-landing_light  dark:bg-card_dark dark:bg-landing_dark bg-contain bg-no-repeat bg-center rounded-tr-2xl rounded-br-2xl"></section>
 
           {/* Right side */}

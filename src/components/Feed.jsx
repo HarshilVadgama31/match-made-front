@@ -1,12 +1,47 @@
-import React from "react";
+import React, { useState } from "react";
 import CarouselDefault from "./CarouselDefault";
 import Button from "./Button";
-
-import { ButtonGroup, Typography } from "@material-tailwind/react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { ButtonGroup, Typography, Alert } from "@material-tailwind/react";
+import { Navigate, Link } from "react-router-dom";
 
 function Feed({ children }) {
   console.log(children);
+  const navigate = useNavigate();
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertContent, setAlertContent] = useState("User request sent");
   const dob = new Date(Date.parse(children.dob)).toLocaleDateString();
+
+  const handleFavourite = async () => {
+    // console.log();
+    try {
+      const formData = new FormData();
+      formData.append(
+        "favourites",
+        JSON.stringify({ favouriteUserId: children._id })
+      );
+      const result = await axios.post(
+        "http://localhost:3000/user/set-favourite",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+      setTimeout(() => {
+        setAlertContent("Saved to favourites ");
+        setAlertOpen(true);
+      }, 200);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleRequest = (e) => {};
+
   return (
     <>
       {/* Grid - 3 Columns */}
@@ -18,7 +53,7 @@ function Feed({ children }) {
           </div>
           <div className="md:mt-4 md:flex md:gap-4">
             <div className="md:h-12 md:w-full">
-              <Button>
+              <Button onClick={handleFavourite} id={children._id}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -36,7 +71,11 @@ function Feed({ children }) {
               </Button>
             </div>
             <div className="md:h-12 md:w-full">
-              <Button>
+              <Button
+                onClick={() => {
+                  navigate("/astromatch");
+                }}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -54,7 +93,7 @@ function Feed({ children }) {
               </Button>
             </div>
             <div className="md:h-12 md:w-full">
-              <Button>
+              <Button onClick={handleRequest} id={children._id}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -71,6 +110,24 @@ function Feed({ children }) {
                 </svg>
               </Button>
             </div>
+          </div>
+          <div className="mt-6">
+            <Alert
+              open={alertOpen}
+              onClose={() => setAlertOpen(false)}
+              color="white"
+              animate={{
+                mount: { y: 0 },
+                unmount: { y: 100 },
+              }}
+            >
+              {alertContent}
+              <Link to="/chat-request" preventScrollReset={true}>
+                <span className="mx-4 py-1 px-4 bg-white/20 hover:bg-white/25 rounded-2xl">
+                  view
+                </span>
+              </Link>
+            </Alert>
           </div>
         </div>
 
@@ -117,6 +174,7 @@ function Feed({ children }) {
           <div className="">
             <Typography variant="h5">Description</Typography>
             <Typography variant="small" className="mt-2">
+              {children.profileDescription}
               Lorem ipsum dolor sit, amet consectetur adipisicing elit.
               Doloremque ducimus non architecto deserunt esse, dicta odit
               provident. Soluta nemo repellat magni molestiae dolorum corporis,
@@ -137,12 +195,12 @@ function Feed({ children }) {
                 viewBox="0 0 24 24"
                 className=" fill-button_light dark:fill-bg_light/10"
               >
-                <path
-                  d="M12 23.7279L5.63604 17.364C2.12132 13.8492 2.12132 8.15076 5.63604 4.63604C9.15076 1.12132 14.8492 1.12132 18.364 4.63604C21.8787 8.15076 21.8787 13.8492 18.364 17.364L12 23.7279ZM16.9497 15.9497C19.6834 13.2161 19.6834 8.78392 16.9497 6.05025C14.2161 3.31658 9.78392 3.31658 7.05025 6.05025C4.31658 8.78392 4.31658 13.2161 7.05025 15.9497L12 20.8995L16.9497 15.9497ZM12 13C10.8954 13 10 12.1046 10 11C10 9.89543 10.8954 9 12 9C13.1046 9 14 9.89543 14 11C14 12.1046 13.1046 13 12 13Z"
-                ></path>
+                <path d="M12 23.7279L5.63604 17.364C2.12132 13.8492 2.12132 8.15076 5.63604 4.63604C9.15076 1.12132 14.8492 1.12132 18.364 4.63604C21.8787 8.15076 21.8787 13.8492 18.364 17.364L12 23.7279ZM16.9497 15.9497C19.6834 13.2161 19.6834 8.78392 16.9497 6.05025C14.2161 3.31658 9.78392 3.31658 7.05025 6.05025C4.31658 8.78392 4.31658 13.2161 7.05025 15.9497L12 20.8995L16.9497 15.9497ZM12 13C10.8954 13 10 12.1046 10 11C10 9.89543 10.8954 9 12 9C13.1046 9 14 9.89543 14 11C14 12.1046 13.1046 13 12 13Z"></path>
               </svg>
               <div className="flex flex-col">
-                <p className="text-xs dark:text-bg_light/60">Place of Birth (Belongs from)</p>
+                <p className="text-xs dark:text-bg_light/60">
+                  Place of Birth (Belongs from)
+                </p>
                 <Typography variant="h5" className="md:text-base lg:text-xl">
                   {children.pob}
                 </Typography>
@@ -178,12 +236,12 @@ function Feed({ children }) {
                 viewBox="0 0 24 24"
                 className=" fill-button_light dark:fill-bg_light/10"
               >
-                <path
-                  d="M12 23.7279L5.63604 17.364C2.12132 13.8492 2.12132 8.15076 5.63604 4.63604C9.15076 1.12132 14.8492 1.12132 18.364 4.63604C21.8787 8.15076 21.8787 13.8492 18.364 17.364L12 23.7279ZM16.9497 15.9497C19.6834 13.2161 19.6834 8.78392 16.9497 6.05025C14.2161 3.31658 9.78392 3.31658 7.05025 6.05025C4.31658 8.78392 4.31658 13.2161 7.05025 15.9497L12 20.8995L16.9497 15.9497ZM12 13C10.8954 13 10 12.1046 10 11C10 9.89543 10.8954 9 12 9C13.1046 9 14 9.89543 14 11C14 12.1046 13.1046 13 12 13Z"
-                ></path>
+                <path d="M12 23.7279L5.63604 17.364C2.12132 13.8492 2.12132 8.15076 5.63604 4.63604C9.15076 1.12132 14.8492 1.12132 18.364 4.63604C21.8787 8.15076 21.8787 13.8492 18.364 17.364L12 23.7279ZM16.9497 15.9497C19.6834 13.2161 19.6834 8.78392 16.9497 6.05025C14.2161 3.31658 9.78392 3.31658 7.05025 6.05025C4.31658 8.78392 4.31658 13.2161 7.05025 15.9497L12 20.8995L16.9497 15.9497ZM12 13C10.8954 13 10 12.1046 10 11C10 9.89543 10.8954 9 12 9C13.1046 9 14 9.89543 14 11C14 12.1046 13.1046 13 12 13Z"></path>
               </svg>
               <div className="flex flex-col">
-                <p className="text-xs dark:text-bg_light/60">Place of Birth (Belongs from)</p>
+                <p className="text-xs dark:text-bg_light/60">
+                  Place of Birth (Belongs from)
+                </p>
                 <Typography variant="h5" className="md:text-base lg:text-xl">
                   {children.pob}
                 </Typography>
@@ -254,23 +312,25 @@ function Feed({ children }) {
               </div>
             </div>
             {/* Annual Income */}
-            { children.annualIncome && (<div className="flex gap-4 bg-button_light/20 dark:bg-button_dark/30 p-4 rounded-xl">
-              <svg
-                fill="none"
-                width="50px"
-                height="50px"
-                viewBox="0 0 24 24"
-                className=" fill-button_light dark:fill-bg_light/10"
-              >
-                <path d="M20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12ZM22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM13.5003 8C13.8278 8.43606 14.0625 8.94584 14.175 9.5H16V11H14.175C13.8275 12.7117 12.3142 14 10.5 14H10.3107L14.0303 17.7197L12.9697 18.7803L8 13.8107V12.5H10.5C11.4797 12.5 12.3131 11.8739 12.622 11H8V9.5H12.622C12.3131 8.62611 11.4797 8 10.5 8H8V6.5H16V8H13.5003Z"></path>
-              </svg>
-              <div className="flex flex-col">
-                <p className="text-xs dark:text-bg_light/60">Annual Income</p>
-                <Typography variant="h5" className="md:text-base lg:text-xl">
-                  {children.annualIncome}
-                </Typography>
+            {children.annualIncome && (
+              <div className="flex gap-4 bg-button_light/20 dark:bg-button_dark/30 p-4 rounded-xl">
+                <svg
+                  fill="none"
+                  width="50px"
+                  height="50px"
+                  viewBox="0 0 24 24"
+                  className=" fill-button_light dark:fill-bg_light/10"
+                >
+                  <path d="M20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12ZM22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM13.5003 8C13.8278 8.43606 14.0625 8.94584 14.175 9.5H16V11H14.175C13.8275 12.7117 12.3142 14 10.5 14H10.3107L14.0303 17.7197L12.9697 18.7803L8 13.8107V12.5H10.5C11.4797 12.5 12.3131 11.8739 12.622 11H8V9.5H12.622C12.3131 8.62611 11.4797 8 10.5 8H8V6.5H16V8H13.5003Z"></path>
+                </svg>
+                <div className="flex flex-col">
+                  <p className="text-xs dark:text-bg_light/60">Annual Income</p>
+                  <Typography variant="h5" className="md:text-base lg:text-xl">
+                    {children.annualIncome}
+                  </Typography>
+                </div>
               </div>
-            </div>)}
+            )}
 
             {/* Family Type */}
             <div className="flex gap-4 bg-button_light/20 dark:bg-button_dark/30 p-4 rounded-xl">
@@ -281,8 +341,7 @@ function Feed({ children }) {
                 viewBox="0 0 24 24"
                 className=" fill-button_light dark:fill-bg_light/10"
               >
-<path d="M2 22C2 17.5817 5.58172 14 10 14C14.4183 14 18 17.5817 18 22H2ZM10 13C6.685 13 4 10.315 4 7C4 3.685 6.685 1 10 1C13.315 1 16 3.685 16 7C16 10.315 13.315 13 10 13ZM17.3628 15.2332C20.4482 16.0217 22.7679 18.7235 22.9836 22H20C20 19.3902 19.0002 17.0139 17.3628 15.2332ZM15.3401 12.9569C16.9728 11.4922 18 9.36607 18 7C18 5.58266 17.6314 4.25141 16.9849 3.09687C19.2753 3.55397 21 5.57465 21 8C21 10.7625 18.7625 13 16 13C15.7763 13 15.556 12.9853 15.3401 12.9569Z"></path>
-
+                <path d="M2 22C2 17.5817 5.58172 14 10 14C14.4183 14 18 17.5817 18 22H2ZM10 13C6.685 13 4 10.315 4 7C4 3.685 6.685 1 10 1C13.315 1 16 3.685 16 7C16 10.315 13.315 13 10 13ZM17.3628 15.2332C20.4482 16.0217 22.7679 18.7235 22.9836 22H20C20 19.3902 19.0002 17.0139 17.3628 15.2332ZM15.3401 12.9569C16.9728 11.4922 18 9.36607 18 7C18 5.58266 17.6314 4.25141 16.9849 3.09687C19.2753 3.55397 21 5.57465 21 8C21 10.7625 18.7625 13 16 13C15.7763 13 15.556 12.9853 15.3401 12.9569Z"></path>
               </svg>
               <div className="flex flex-col">
                 <p className="text-xs dark:text-bg_light/60">Family Type</p>

@@ -183,9 +183,9 @@ function ChatAndRequest() {
           </div> */}
           {/* dynamic hidden */}
           <div
-            className={`h-full lg:col-span-8 hidden lg:grid`}
+            className={`h-[88vh] lg:col-span-8 hidden lg:grid`}
           >
-            <div className="hidden md:flex md:flex-col md:h-[88vh] rounded-xl bg-card_light dark:bg-card_dark">
+            <div className="hidden md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark">
               <div className="md:h-12 mx-6 mt-8">
                 <div className="pt-30 px-4 w-full">
                   <ThemeProvider value={customTheme}>
@@ -515,7 +515,7 @@ function ChatAndRequest() {
 
           {/* Chat Option Section */}
           <div
-            className={`relative lg:col-span-3 md:col-span-11 col-span-12 md:mr-2 lg:mr-0 bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl dark:bg-card_dark dark:text-bg_light`}
+            className={`relative h-[88vh] lg:col-span-3 md:col-span-11 col-span-12 md:mr-2 lg:mr-0 bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl dark:bg-card_dark dark:text-bg_light`}
           >
             <Typography variant="h4" className="mt-8 ml-8">
               Chats

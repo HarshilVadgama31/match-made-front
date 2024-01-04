@@ -2,7 +2,7 @@ import React from 'react'
 
 function MatchListItem({ title, description, tick = true}) { 
   return tick ? (
-    <li className="flex justify-between mx-8 bg-button_light/20 dark:bg-button_dark/30 rounded-xl p-4">
+    <li className="flex justify-between w-[90%] mx-8 bg-button_light/20 dark:bg-button_dark/30 rounded-xl p-4">
                 <div>
                   <p className="text-sm font-thin dark:text-bg_light/60">{title}</p>
                   <p className="text-2xl">{description}</p>
@@ -22,7 +22,7 @@ function MatchListItem({ title, description, tick = true}) {
                 </svg>
               </li>
   ) : (
-    <li className="flex justify-between mx-8 bg-button_light/10 dark:bg-button_dark/10 rounded-xl p-4">
+    <li className="flex justify-between w-[90%] mx-8 bg-button_light/10 dark:bg-button_dark/10 rounded-xl p-4">
                 <div>
                   <p className="text-sm font-thin dark:text-bg_light/60">
                     {title}

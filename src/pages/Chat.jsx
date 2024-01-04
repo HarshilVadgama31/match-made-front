@@ -110,7 +110,7 @@ function Chat() {
       },
     ]);
 
-    setMessage("");
+    setMessage("");z
   };
 
   return (
@@ -124,7 +124,7 @@ function Chat() {
 
           {/* Chat Section &  dynamic hidden */}
           <div
-            className={`h-full lg:col-span-8 hidden lg:grid  text-bg_dark`}
+            className={`md:h-[88vh] lg:col-span-8 hidden lg:grid  text-bg_dark`}
           >
             <div className="hidden md:flex md:flex-col md:h-[88vh] rounded-xl bg-card_light dark:bg-card_dark">
               {/* Chat Header */}
@@ -289,7 +289,7 @@ function Chat() {
 
           {/* Chat Option Section */}
           <div
-            className={`relative lg:col-span-3 md:col-span-11 col-span-12  bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl text-bg_dark dark:bg-card_dark dark:text-bg_light`}
+            className={`relative h-[88vh] lg:col-span-3 md:col-span-11 col-span-12  bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl text-bg_dark dark:bg-card_dark dark:text-bg_light`}
           >
             <Typography variant="h4" className="mt-8 ml-8">
               Chats
