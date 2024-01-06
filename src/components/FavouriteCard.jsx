@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {Card, CardHeader, Typography, CardBody, IconButton} from "@material-tailwind/react"
 
-function FavouriteCard({ name, id }) {
+function FavouriteCard({ name, id, image }) {
   const [favouriteButton, unsetFavouriteButton] = useState("fill-red-400");
   const [favouriteButtonOutline, unsetFavouriteButtonOutline] = useState("");
 
@@ -11,7 +11,7 @@ function FavouriteCard({ name, id }) {
   }
 
   return (
-    <li className="h-24" key={id}>
+    <li className="h-22" key={id}>
       <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
         <CardHeader
           shadow={false}
@@ -19,13 +19,13 @@ function FavouriteCard({ name, id }) {
           className="m-0 shrink-0 rounded-r-none"
         >
           <img
-            src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+            src={`profile/${image}`}
             alt="card-image"
-            className="w-20 object-cover object-top h-20"
+            className="w-20 object-cover object-center h-20"
           />
         </CardHeader>
         <CardBody className="w-full overflow-hidden truncate flex justify-between items-center pl-1 pr-6">
-          <Typography variant="h5" color="blue-gray" className="mb-1">
+          <Typography variant="h5" color="blue-gray" className="">
             {name}
           </Typography>
           <div className="flex gap-4 justify-center items-center">

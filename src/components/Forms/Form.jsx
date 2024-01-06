@@ -68,6 +68,7 @@ const Form = ({ setFormId }) => {
     console.log(result.data);
 
     if (result.data.message.modifiedCount >= 1) {
+      localStorage.setItem('horoscope',result.data.user.horoscope)
       navigate("/matchfeed");
     } else {
 		setOpenAlert(!openAlert)

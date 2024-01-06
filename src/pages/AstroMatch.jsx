@@ -11,9 +11,13 @@ import {
   CardFooter,
   CardBody,
   Carousel,
+  IconButton,
 } from "@material-tailwind/react";
 import Button from "../components/Button";
+import { useCookies } from "react-cookie";
+import axios from "axios";
 import AstroCardButton from "../components/AstroMatch/AstroCardButton";
+
 const theme = {
   avatar: {
     valid: {
@@ -35,8 +39,39 @@ function AstroMatch() {
   const [card, setCard] = useState(1);
   const [title, setTitle] = useState("");
   const [open, setOpen] = React.useState(false);
+  const [chat, setChat] = useState("md:hidden hidden");
+  const [cookies, removeCookie] = useCookies([]);
+
+  const [chatList, setChatList] = useState("md:col-span-11 col-span-1");
+  const [chatclick, setChatClick] = useState(false);
+  const [backclick, setBackClick] = useState(false);
+  const [details, setDetails] = useState();
+
+  const horoscope = localStorage.getItem("horoscope");
+  const partnerHoroscope = localStorage.getItem("partnerHoroscope");
 
   const handleOpen = () => setOpen(!open);
+
+  const handleChatClick = () => {
+    setChatClick(!chatclick);
+    checkClick();
+  };
+
+  const handleBackClick = () => {
+    setBackClick(!backclick);
+    checkClick();
+  };
+
+  const checkClick = () => {
+    if (chatclick) {
+      setChat("md:col-span-11 col-span-1");
+      setChatList("md:hidden hidden");
+    }
+    if (backclick) {
+      setChat("md:hidden hidden");
+      setChatList("md:col-span-11 col-span-1");
+    }
+  };
 
   function changeTitle() {
     const astroCategory = [
@@ -49,7 +84,29 @@ function AstroMatch() {
     setTitle(astroCategory[card - 1]);
   }
 
+  const loadData = async () => {
+    
+    try {
+      const result = await axios.post(
+        "http://localhost:3000/user/astro-search",
+        { signs: [horoscope,partnerHoroscope] },
+        {
+          headers: {
+            Cookie: "token=" + cookies.token,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log(result);
+      setDetails(result.data.message);
+      console.log(details);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
+    loadData();
     changeTitle();
   }, [card]);
 
@@ -58,20 +115,42 @@ function AstroMatch() {
       <div className="flex flex-col h-screen w-full bg-bg_light dark:bg-bg_dark">
         <Header />
 
-        <div className="grid grid-cols-12 h-screen mb-10">
-          <div className="col-span-1 lg:pr-2 md:pr-1">
+        <div className="grid grid-cols-1 md:grid-cols-12 h-full mb-10 gap-2">
+          <div className="col-span-1 md:col-span-1 md:h-[88vh] md:order-first order-3">
             <LeftBar activeAt={1} />
           </div>
           <div
-            className={`h-full lg:col-span-7 hidden lg:grid lg:pr-2 md:pr-1`}
+            className={`md:h-[88vh] ${chat} lg:col-span-7 lg:grid text-bg_dark`}
           >
-            <div className="hidden md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark">
-              <div className="mt-8 mx-8 flex flex-col gap-6">
+            <div
+              className={`h-[83vh] lg:flex lg:flex-col md:h-[88vh] rounded-xl bg-card_light dark:bg-card_dark overflow-y-scroll mb-12 md:mb-0`}
+            >
+              <div className="lg:mt-8 mx-8 flex flex-col gap-6">
                 {/* Astro Analysis Heading */}
                 <Typography
-                  className="text-font_light dark:text-font_dark"
+                  className="flex mt-4 lg:mt-0 text-font_light dark:text-font_dark"
                   variant="h3"
                 >
+                  <div className="lg:hidden flex items-center justify-center">
+                    <IconButton
+                      variant="text"
+                      className="rounded-full dark:text-white"
+                      onClick={handleBackClick}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1}
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                      >
+                        <path
+                          d="M10.8284 12.0007L15.7782 16.9504L14.364 18.3646L8 12.0007L14.364 5.63672L15.7782 7.05093L10.8284 12.0007Z"
+                          fill="currentColor"
+                        ></path>
+                      </svg>
+                    </IconButton>
+                  </div>
                   Astro Analysis
                 </Typography>
                 {/* Image */}
@@ -85,7 +164,7 @@ function AstroMatch() {
                     <figcaption className="absolute bottom-8 left-2/4 flex w-[calc(100%-4rem)] -translate-x-2/4 justify-between rounded-xl border border-white bg-white/75 py-4 px-6 shadow-lg shadow-black/5 saturate-200 backdrop-blur-sm">
                       <div>
                         <Typography variant="h5" color="blue-gray">
-                          Leo - Scorpion
+                          {details?.signs[0]} - {details?.signs[1]}
                         </Typography>
                         <Typography color="gray" className="mt-2 font-normal">
                           {title} {/* ButtonType*/}
@@ -100,32 +179,19 @@ function AstroMatch() {
                     className="text-font_light dark:text-font_dark"
                     variant="paragraph"
                   >
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                    Iusto magni vitae totam adipisci quo, et vel iure impedit
-                    quis facere. Libero voluptate veritatis necessitatibus
-                    dolores velit, hic quae deleniti quaerat? Expedita libero
-                    voluptatum asperiores ipsum quis, vel iure ut non architecto
-                    excepturi, pariatur beatae distinctio officiis vero?
-                    Voluptate perferendis, deleniti tempora nobis architecto
-                    maiores amet. Corporis, sapiente. Eius, consequuntur quo!
-                    Blanditiis, voluptatum temporibus quisquam magnam aut
-                    repudiandae, rerum aliquam corrupti perspiciatis impedit
-                    quaerat ab non! Corporis impedit, repudiandae consequatur
-                    voluptas aliquid veniam eligendi veritatis rerum saepe,
-                    dolorem provident quas alias. Rem pariatur sed culpa
-                    similique qui dignissimos in dolorum accusantium obcaecati
-                    assumenda cupiditate a eaque, animi atque vero vitae cum
-                    veniam voluptas quod? Placeat ducimus officiis dolorum
-                    excepturi modi nihil!
+                    {details?.description}
                   </Typography>
                 </div>
               </div>
             </div>
           </div>
-          <div
+          {/* <div
             className={`relative lg:col-span-4 md:col-span-11 col-span-12 md:mr-2 lg:mr-0 bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl dark:bg-card_dark dark:text-bg_light`}
+          > */}
+          <div
+            className={` h-[88vh] rounded-xl md:h-[88vh] relative lg:block lg:h-[88vh] lg:col-span-4 ${chatList}  bg-card_light md:rounded-tl-xl md:rounded-bl-xl text-bg_dark dark:bg-card_dark dark:text-bg_light overflow-scroll`}
           >
-            <div className="flex flex-col gap-8 items-center pt-24">
+            <div className="flex flex-col gap-8 items-center pt-24 ">
               {/* Overlapping Avatar  */}
               <div className="flex items-center -space-x-8">
                 <ThemeProvider value={theme}>
@@ -133,15 +199,15 @@ function AstroMatch() {
                     variant="circular"
                     alt="user 1"
                     size="xxxl"
-                    className="border-2 border-white hover:z-10 focus:z-10"
-                    src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1480&q=80"
+                    className="p-5 border-2 border-white hover:z-10 focus:z-10 bg-button_light "
+                    src={`/image/AstroSigns/${horoscope.toLowerCase()}.png`}
                   />
                   <Avatar
                     variant="circular"
                     alt="user 2"
                     size="xxxl"
-                    className="border-2 border-white hover:z-10 focus:z-10"
-                    src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1061&q=80"
+                    className="p-5 border-2 border-white hover:z-10 focus:z-10 bg-button_light"
+                    src={`/image/AstroSigns/${partnerHoroscope.toLowerCase()}.png`}
                   />
                 </ThemeProvider>
               </div>
@@ -162,7 +228,7 @@ function AstroMatch() {
 
               {/* Compatibility Cards */}
               <div
-                className={`flex flex-wrap h-[22rem] overflow-clip overflow-y-scroll items-center justify-center gap-6`}
+                className={`flex flex-wrap h-[22rem] items-center justify-center gap-6`}
               >
                 <AstroCardButton
                   passedid={1}
@@ -170,6 +236,7 @@ function AstroMatch() {
                   clicked={setCard}
                   title="Compatibility"
                   disabled={false}
+                  onClicked={handleChatClick}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Cookies from "universal-cookie";
+import LeftBarMobile from "../components/LeftBarMobile";
 // import { useCookies } from "react-cookie";
 
 function LeftBar({ activeAt }) {
@@ -88,9 +89,7 @@ function LeftBar({ activeAt }) {
           ></div>
           <div className="flex flex-col items-center pb-8">
             {/* TODO: Logout function */}
-            <button
-              onClick={handleLogout}
-            >
+            <button onClick={handleLogout}>
               <svg
                 width="35"
                 height="35"
@@ -104,6 +103,9 @@ function LeftBar({ activeAt }) {
             </button>
           </div>
         </div>
+      </div>
+      <div className="md:hidden ">
+        <LeftBarMobile activeAt={activeAt} />
       </div>
     </>
   );

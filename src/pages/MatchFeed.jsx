@@ -8,11 +8,14 @@ import Feed from "../components/Feed";
 import MatchMeter from "../components/MatchMeter";
 import ProfileSettings from "../components/ProfileSettings";
 import IconButton from "../components/IconButton";
-import PremiumDialog from "../components/PremiumDialog";
+import PremiumDialog from "../components/BuyPlanDialog";
+import BuyPlanDialog from "../components/BuyPlanDialog";
 import LoadingSkeleton from "../components/LoadingSkeleton";
 import axios from "axios";
 
+
 function MatchFeed() {
+
   const navigate = useNavigate();
   const [cookies, removeCookie] = useCookies([]);
 
@@ -26,7 +29,7 @@ function MatchFeed() {
   // }, []);
 
   const [mvalue, setMvalue] = useState("col-span-2");
-  const [fvalue, setFvalue] = useState("col-span-9");
+  const [fvalue, setFvalue] = useState("md:col-span-9");
   const [click, setClick] = useState(false);
   const [data, setData] = useState(null);
 
@@ -129,11 +132,11 @@ function MatchFeed() {
   const handleClick = (click) => {
     setClick(click);
     if (click) {
-      setFvalue("col-span-7");
-      setMvalue("col-span-4");
+      setFvalue("md:col-start-2 md:col-end-9");
+      setMvalue("md:col-span-4");
     } else {
-      setFvalue("col-span-9");
-      setMvalue("col-span-2");
+      setFvalue("md:col-start-2 md:col-end-11");
+      setMvalue("md:col-span-2");
     }
   };
 
@@ -141,18 +144,19 @@ function MatchFeed() {
     <>
       <div className="flex flex-col h-screen w-full bg-bg_light dark:bg-bg_dark">
         <Header />
-        <div className="grid grid-cols-12 h-full mb-10 gap-2">
-          <div className="col-span-1 h-[88vh]">
+        <div className="grid grid-cols-1 md:grid-cols-12 h-full mb-10 gap-2">
+          
+          <div className="col-span-1 md:col-span-1 md:h-[88vh] md:order-first order-3">
             <LeftBar activeAt={1} />
           </div>
           {/* <div className="h-full col-span-11">
             <ProfileSettings/>
           </div> */}
-          <div className={`h-[88vh] ${fvalue}`}>
-            <div className="hidden md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark">
+          <div className={` col-span-1 md:h-[88vh] ${fvalue}`}>
+            <div className="md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark ">
               <div className="md:h-12 flex justify-between items-center mx-6 my-4">
                 <span>
-                  <PremiumDialog>
+                  <BuyPlanDialog>
                     <svg
                       className="w-4 h-4 mx-2"
                       xmlns="http://www.w3.org/2000/svg"
@@ -164,10 +168,10 @@ function MatchFeed() {
                       ></path>
                     </svg>
                     <span className="mr-2">Personal Preference</span>
-                  </PremiumDialog>
+                  </BuyPlanDialog>
                 </span>
                 {data && (
-                  <div className=" text-bg_dark dark:text-bg_light  mt-4">
+                  <div className=" text-bg_dark dark:text-bg_light mt-4">
                     <button disabled={currentIndex === 0} onClick={handlePrev}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -210,10 +214,10 @@ function MatchFeed() {
             </div>
           </div>
           <div
-            className={`relative ${mvalue} h-[88vh]`}
+            className={`relative col-span-1 ${mvalue} md:h-[88vh] md:order-3`}
             onClick={() => handleClick(!click)}
           >
-            <div className="hidden md:h-full md:grid md:grid-cols-1 md:w-full rounded-bl-xl rounded-tl-xl bg-card_light dark:bg-card_dark">
+            <div className="pb-24 md:pb-0 rounded-xl md:h-full md:grid md:grid-cols-1 md:w-full md:rounded-bl-xl md:rounded-tl-xl bg-card_light dark:bg-card_dark">
               {data && (
                 <MatchMeter clicked={click}>{data[currentIndex]}</MatchMeter>
               )}

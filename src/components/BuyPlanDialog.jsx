@@ -9,29 +9,34 @@ import {
 import Button from "./Button";
 import PlansCard from "../components/PlansCard";
 
-function BuyPlanDialog({ children }) {
+function BuyPlanDialog({ children, noBorder }) {
   const [open, setOpen] = React.useState(false);
 
   const handleOpen = () => setOpen(!open);
   return (
     <>
-      <Button onClick={handleOpen}>{children}</Button>
+      <Button onClick={handleOpen} noBorder={noBorder}>
+        {children}
+      </Button>
       <Dialog
         size="sm"
         open={open}
         handler={handleOpen}
         className=" bg-card_light/90 dark:bg-card_dark/90 py-4"
       >
-        <DialogBody className="grid place-items-center gap-4">
+        <DialogHeader className=" justify-center">
           <Typography
             className="text-font_light dark:text-font_dark"
             variant="h4"
           >
             Our Premium Plans
           </Typography>
-          <div className="flex gap-8">
-            <PlansCard type="Free" active={true}/>
-            <PlansCard type="Premium" active={false}/>
+        </DialogHeader>
+
+        <DialogBody className="grid place-items-center gap-4 overflow-x-scroll">
+          <div className="flex gap-8 ">
+            <PlansCard type="Free" active={true} />
+            <PlansCard type="Premium" active={false} />
           </div>
         </DialogBody>
         <DialogFooter>

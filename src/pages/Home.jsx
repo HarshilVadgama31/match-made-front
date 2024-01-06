@@ -107,11 +107,12 @@ function Home() {
       .then((response) => {
         if (
           response.data.message ===
-            "Access Denied. Incorrect password or phone number" ||
+          "Access Denied. Incorrect password or phone number" ||
           response.data.message === "Incorrect password or phone number"
-        ) {
-          setLoginOpen(true);
-        } else {
+          ) {
+            setLoginOpen(true);
+          } else {
+          localStorage.setItem('horoscope',response.data.message.horoscope)
           navigate("/matchfeed");
           refreshPage();
         }
@@ -139,6 +140,7 @@ function Home() {
         if (response.data.message === "User already exists") {
           setRegisterOpen(true);
         } else {
+          
           navigate("/register");
           refreshPage();
         }
@@ -191,7 +193,7 @@ function Home() {
                                   type="radio"
                                   id="bride"
                                   name="gender"
-                                  value="bride"
+                                  value="male"
                                   className="overflow-hidden absolute w-0 peer"
                                   onChange={(e) =>
                                     setFormData({
@@ -226,7 +228,7 @@ function Home() {
                                   type="radio"
                                   id="groom"
                                   name="gender"
-                                  value="groom"
+                                  value="female"
                                   className="overflow-hidden absolute w-0 peer"
                                   onChange={(e) =>
                                     setFormData({

@@ -8,6 +8,7 @@ function AstroCardButton({
   clicked,
   title,
   disabled,
+  onClicked,
 }) {
   //     const [active, setActive] = useState(false);
   //   function changeActiveState() {
@@ -23,8 +24,10 @@ function AstroCardButton({
             ? "border-2 border-button_light dark:border-bg_dark"
             : " hover:border-button_light dark:hover:border-bg_dark"
         } ${disabled ? "bg-white/50 backdrop-blur-sm" : ""} `}
-        onClick={() => disabled?clicked(passedid):clicked()}
-        
+        onClick={() => {
+          disabled ? clicked(passedid) : clicked();
+          onClicked()
+        }}
       >
         <CardBody>
           {disabled ? (

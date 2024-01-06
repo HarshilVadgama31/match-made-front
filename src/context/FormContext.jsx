@@ -15,7 +15,7 @@ export const FormProvider = ({ children }) => {
   };
 
   const [page, setPage] = useState(0);
-
+  const [profile, setProfile] = useState({});
   const [data, setData] = useState({
     P1FirstName: "",
     P1LastName: "",
@@ -147,6 +147,8 @@ export const FormProvider = ({ children }) => {
         setPage,
         data,
         setData,
+        profile,
+        setProfile,
         canSubmit,
         handleChange,
         disablePrev,

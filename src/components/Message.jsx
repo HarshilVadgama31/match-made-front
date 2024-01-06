@@ -13,7 +13,7 @@ function Message({ our, children, id }) {
 					</p>
 				</div>
 			) : (
-				<div key={id}>
+				<div key={id} className="flex">
 					<p className="flex items-end w-max max-w-lg rounded-t-3xl rounded-br-3xl bg-white/70 p-4 gap-2">
 						{children}
 						<span className=" text-xs text-bg_dark/40">21:10</span>
