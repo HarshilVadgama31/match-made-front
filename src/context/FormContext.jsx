@@ -11,10 +11,11 @@ export const FormProvider = ({ children }) => {
     4: "Partner Details",
     5: "Partner Family",
     6: "Partner Qualification",
+    7: "About You",
   };
 
   const [page, setPage] = useState(0);
-
+  const [profile, setProfile] = useState({});
   const [data, setData] = useState({
     P1FirstName: "",
     P1LastName: "",
@@ -49,9 +50,12 @@ export const FormProvider = ({ children }) => {
     P7PartnerQualification: "",
     P7PartnerProfession: "",
     P7PartnerAnnualIncome: "",
+    P8ProfilePicture: "",
+    P8ProfileEmail: "",
+    P8ProfileDescription: "",
   });
 
-  const { ...requiredInputs } = data;      
+  const { ...requiredInputs } = data;
 
   const canSubmit =
     // [...Object.values(requiredInputs)].every(Boolean) &&
@@ -87,6 +91,11 @@ export const FormProvider = ({ children }) => {
     .map((key) => data[key])
     .every(Boolean);
 
+  const canNextPage7 = Object.keys(data)
+    .filter((key) => key.startsWith("P7"))
+    .map((key) => data[key])
+    .every(Boolean);
+
   const disablePrev = page === 0;
 
   const disableNext =
@@ -96,7 +105,8 @@ export const FormProvider = ({ children }) => {
     (page === 2 && !canNextPage3) ||
     (page === 3 && !canNextPage4) ||
     (page === 4 && !canNextPage5) ||
-    (page === 5 && !canNextPage6);
+    (page === 5 && !canNextPage6) ||
+    (page === 6 && !canNextPage7);
 
   const prevHide = page === 0 && "hidden";
 
@@ -110,8 +120,11 @@ export const FormProvider = ({ children }) => {
 
     const id = e.target.id;
     console.log(id + type);
-    const value = type === "checkbox" ? e.target.checked : e.target.value;
-
+    let value = type === "checkbox" ? e.target.checked : e.target.value;
+    if (type === "file") {
+      value = e.target.files[0];
+      console.log(e.target.files[0]);
+    }
     setData((prevData) => ({
       ...prevData,
       [id]: value,
@@ -124,7 +137,6 @@ export const FormProvider = ({ children }) => {
     // );
 
     // console.log(data);
-    
   };
 
   return (
@@ -135,6 +147,8 @@ export const FormProvider = ({ children }) => {
         setPage,
         data,
         setData,
+        profile,
+        setProfile,
         canSubmit,
         handleChange,
         disablePrev,

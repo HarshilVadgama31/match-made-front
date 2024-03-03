@@ -1,12 +1,14 @@
-import React from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import LeftBar from "../components/LeftBar";
+import { useCookies } from "react-cookie";
+import axios from "axios";
 import Feed from "../components/Feed";
 import Button from "../components/Button";
 import MatchMeter from "../components/MatchMeter";
 import { Typography, Chip, Checkbox } from "@material-tailwind/react";
-import { Card, CardHeader, CardBody} from "@material-tailwind/react";
+import { Card, CardHeader, CardBody } from "@material-tailwind/react";
+
 import {
   Tabs,
   TabsHeader,
@@ -15,7 +17,14 @@ import {
   TabPanel,
   IconButton,
 } from "@material-tailwind/react";
+
 import { ThemeProvider } from "@material-tailwind/react";
+import FriendCard from "../components/FriendCard";
+import FriendRecievedCard from "../components/FriendRecievedCard";
+import FavouriteCard from "../components/FavouriteCard";
+import Conversation from "../components/Conversation";
+import { useNavigate } from "react-router-dom";
+
 function ChatAndRequest() {
   const customTheme = {
     tabsHeader: {
@@ -78,55 +87,174 @@ function ChatAndRequest() {
       },
     },
   };
-  //   const data = null;
-  const data = [
-    {
-      label: "HTML",
-      value: "html",
-      desc: `It really matters and then like it really doesn't matter.
-      What matters is the people who are sparked by it. And the people 
-      who are like offended by it, it doesn't matter.`,
-    },
-    {
-      label: "React",
-      value: "react",
-      desc: `Because it's about motivating the doers. Because I'm here
-      to follow my dreams and inspire other people to follow their dreams, too.`,
-    },
-    {
-      label: "Vue",
-      value: "vue",
-      desc: `We're not always in the position that we want to be at.
-      We're constantly growing. We're constantly making mistakes. We're
-      constantly trying to express ourselves and actualize our dreams.`,
-    },
-  ];
-  const [favouriteButton, unsetFavouriteButton] = useState("fill-red-400");
-  const [favouriteButtonOutline, unsetFavouriteButtonOutline] = useState("");
 
-  function handlefavourite() {
-    unsetFavouriteButton("fill-none");
-    unsetFavouriteButtonOutline("currentColor");
+  const navigate = useNavigate();
+  const [chat, setChat] = useState("md:col-span-11 col-span-1");
+  const [chatList, setChatList] = useState("md:hidden hidden");
+  const [chatListData, setChatListData] = useState([]);
+  const [chatclick, setChatClick] = useState(false);
+  const [backclick, setBackClick] = useState(false);
+
+  const handleChatClick = () => {
+    setChatClick(!chatclick);
+    checkClick();
+  };
+
+  const handleBackClick = () => {
+    setBackClick(!backclick);
+    checkClick();
+  };
+
+  const checkClick = () => {
+    if (chatclick) {
+      setChat("md:hidden hidden");
+      setChatList("md:col-span-11 col-span-1");
+    }
+    if (backclick) {
+      setChat("md:col-span-11 col-span-1");
+      setChatList("md:hidden hidden");
+    }
+  };
+  //   const data = null;
+  const [cookies, removeCookie] = useCookies([]);
+  const [sentRequests, setSentRequests] = useState(null);
+  const [putRequests, setPutRequests] = useState(null);
+  const [favourites, setFavourites] = useState(null);
+
+  const getData = async () => {
+    const result = await axios.post(
+      "http://localhost:3000/friends/sent-requests",
+      "",
+      {
+        headers: {
+          Cookie: "token=" + cookies.token,
+        },
+        withCredentials: true,
+      }
+    );
+    // console.log(result.data.message);
+    setSentRequests(result.data.message);
+    // return result.message;
+  };
+
+  const putData = async () => {
+    const result = await axios.post(
+      "http://localhost:3000/friends/received-requests",
+      "",
+      {
+        headers: {
+          Cookie: "token=" + cookies.token,
+        },
+        withCredentials: true,
+      }
+    );
+
+    setPutRequests(result.data.message);
+  };
+
+  const getFavourites = async () => {
+    const result = await axios.post(
+      "http://localhost:3000/user/favourites",
+      "",
+      {
+        headers: {
+          Cookie: "token=" + cookies.token,
+        },
+        withCredentials: true,
+      }
+    );
+    // const response = await fetch("http://localhost:3000/user/favourites", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({ userId: "6572343b20e0ba4957caf1fa" }),
+    // });
+
+    // const result = await response.json();
+
+    console.log(result.data);
+    setFavourites(result.data.message);
+    // return result.message;
+  };
+
+  const getChatList = async () => {
+    const result = await axios.post("http://localhost:3000/chat/get-chat", "", {
+      headers: {
+        Cookie: "token=" + cookies.token,
+      },
+      withCredentials: true,
+    });
+    // const response = await fetch("http://localhost:3000/user/favourites", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({ userId: "6572343b20e0ba4957caf1fa" }),
+    // });
+
+    // const result = await response.json();
+
+    console.log(result.data.message);
+    setChatListData(result.data.message);
+    // return result.message;
+  };
+
+  useEffect(() => {
+    getData();
+    putData();
+    getFavourites();
+    getChatList();
+  }, []);
+
+  async function onConsideredRequest(e) {
+    console.log(e.target.name);
+    const details = e.target.name.split("!~");
+    const result = await axios.post(
+      "http://localhost:3000/friends/update-request",
+      { requestId: details[0], senderId: details[1], status: "Accepted" },
+      {
+        headers: {
+          Cookie: "token=" + cookies.token,
+        },
+        withCredentials: true,
+      }
+    );
+    putData();
+    getData();
+    navigate("/chat-request")
+  }
+
+  async function onDeclinedRequest(e) {
+    console.log(e.target.name);
+    const result = await axios.post(
+      "http://localhost:3000/friends/update-request",
+      { requestId: e.target.name, status: "Rejected" },
+      {
+        headers: {
+          Cookie: "token=" + cookies.token,
+        },
+        withCredentials: true,
+      }
+    );
+    putData();
+    getData();
   }
 
   return (
     <>
       <div className="flex flex-col h-screen w-full bg-bg_light dark:bg-bg_dark">
         <Header />
-        <div className="grid grid-cols-12 h-screen mb-10">
-          <div className="col-span-1 lg:pr-2 md:pr-1 ">
-            <LeftBar activeAt={2}/>
+        <div className="grid grid-cols-1 md:grid-cols-12 h-full mb-10 gap-2">
+          <div className="col-span-1 md:col-span-1 md:h-[88vh] md:order-first order-3">
+            <LeftBar activeAt={2} />
           </div>
           {/* <div className="h-full col-span-11">
             <ProfileSettings/>
           </div> */}
           {/* dynamic hidden */}
           <div
-            className={`h-full lg:col-span-8 hidden lg:grid lg:pr-2 md:pr-1`}
+            className={`md:h-[88vh] ${chat} lg:col-span-8 lg:grid text-bg_dark`}
           >
-            <div className="hidden md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark">
-              <div className="md:h-12 mx-6 mt-8">
-                <div className="pt-30 px-4 w-full">
+            <div className="h-[83vh] lg:flex lg:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark">
+              <div className="md:h-12 mx-6 lg:mt-8">
+                <div className="relative h-[83vh] md:h-[88vh] pt-6 lg:pt-30 px-4 w-full">
                   <ThemeProvider value={customTheme}>
                     <Tabs value="Request Sent">
                       <TabsHeader>
@@ -147,7 +275,9 @@ function ChatAndRequest() {
                               />
                             </svg>
 
-                            <p>Request Sent</p>
+                            <p className="text-sm mt-2 lg:text-xl">
+                              Request Sent
+                            </p>
                           </div>
                         </Tab>
                         <Tab key="Request Received" value="Request Received">
@@ -167,7 +297,9 @@ function ChatAndRequest() {
                               />
                             </svg>
 
-                            <p>Request Received</p>
+                            <p className="text-sm mt-2 lg:text-xl">
+                              Request Received
+                            </p>
                           </div>
                         </Tab>
                         <Tab key="Favourites" value="Favourites">
@@ -187,14 +319,117 @@ function ChatAndRequest() {
                               />
                             </svg>
 
-                            <p>Favourites</p>
+                            <p className="text-sm mt-2 lg:text-xl">
+                              Favourites
+                            </p>
                           </div>
                         </Tab>
                       </TabsHeader>
                       <TabsBody>
                         <TabPanel key="Request Sent" value="Request Sent">
-                          <div className="mt-4">
-                            <ul className="flex flex-col">
+                          <div className="mt-4 overflow-scroll">
+                            <ul className="flex flex-col gap-4 max-h-[70vh]">
+                              {sentRequests?.map((result) => (
+                                <FriendCard
+                                  id={result._id}
+                                  name={result.firstName}
+                                  status={result.status}
+                                  image={result.profilePicture}
+                                />
+                              ))}
+                              {/* <li className="h-24">
+                                <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
+                                  <CardHeader
+                                    shadow={false}
+                                    floated={false}
+                                    className="m-0 shrink-0 rounded-r-none"
+                                  >
+                                    <img
+                                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                                      alt="card-image"
+                                      className="w-20 object-cover object-top h-20"
+                                    />
+                                  </CardHeader>
+                                  <CardBody className="w-full overflow-hidden truncate flex justify-between pl-1 pr-6">
+                                    <Typography
+                                      variant="h5"
+                                      color="blue-gray"
+                                      className="mb-1"
+                                    >
+                                      Stephen Costa
+                                    </Typography>
+                                    <Chip
+                                      variant="ghost"
+                                      color="green"
+                                      size="lg"
+                                      value="Accepted"
+                                    />
+                                  </CardBody>
+                                </Card>
+                              </li>
+                              <li className="h-24">
+                                <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
+                                  <CardHeader
+                                    shadow={false}
+                                    floated={false}
+                                    className="m-0 shrink-0 rounded-r-none"
+                                  >
+                                    <img
+                                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                                      alt="card-image"
+                                      className="w-20 object-cover object-top h-20"
+                                    />
+                                  </CardHeader>
+                                  <CardBody className="w-full overflow-hidden truncate flex justify-between pl-1 pr-6">
+                                    <Typography
+                                      variant="h5"
+                                      color="blue-gray"
+                                      className="mb-1"
+                                    >
+                                      Stephen Costa
+                                    </Typography>
+                                    <div className="flex gap-4">
+                                      <Chip
+                                        variant="ghost"
+                                        size="lg"
+                                        value="Pending"
+                                      />
+                                    </div>
+                                  </CardBody>
+                                </Card>
+                              </li>
+                              <li className="h-24">
+                                <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
+                                  <CardHeader
+                                    shadow={false}
+                                    floated={false}
+                                    className="m-0 shrink-0 rounded-r-none"
+                                  >
+                                    <img
+                                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                                      alt="card-image"
+                                      className="w-20 object-cover object-top h-20"
+                                    />
+                                  </CardHeader>
+                                  <CardBody className="w-full overflow-hidden truncate flex justify-between pl-1 pr-6">
+                                    <Typography
+                                      variant="h5"
+                                      color="blue-gray"
+                                      className="mb-1"
+                                    >
+                                      Stephen Costa
+                                    </Typography>
+                                    <div className="flex gap-4">
+                                      <Chip
+                                        variant="ghost"
+                                        color="red"
+                                        size="lg"
+                                        value="Rejected"
+                                      />
+                                    </div>
+                                  </CardBody>
+                                </Card>
+                              </li>
                               <li className="h-24">
                                 <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
                                   <CardHeader
@@ -288,16 +523,140 @@ function ChatAndRequest() {
                                   </CardBody>
                                 </Card>
                               </li>
+                              <li className="h-24">
+                                <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
+                                  <CardHeader
+                                    shadow={false}
+                                    floated={false}
+                                    className="m-0 shrink-0 rounded-r-none"
+                                  >
+                                    <img
+                                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                                      alt="card-image"
+                                      className="w-20 object-cover object-top h-20"
+                                    />
+                                  </CardHeader>
+                                  <CardBody className="w-full overflow-hidden truncate flex justify-between pl-1 pr-6">
+                                    <Typography
+                                      variant="h5"
+                                      color="blue-gray"
+                                      className="mb-1"
+                                    >
+                                      Stephen Costa
+                                    </Typography>
+                                    <Chip
+                                      variant="ghost"
+                                      color="green"
+                                      size="lg"
+                                      value="Accepted"
+                                    />
+                                  </CardBody>
+                                </Card>
+                              </li>
+                              <li className="h-24">
+                                <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
+                                  <CardHeader
+                                    shadow={false}
+                                    floated={false}
+                                    className="m-0 shrink-0 rounded-r-none"
+                                  >
+                                    <img
+                                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                                      alt="card-image"
+                                      className="w-20 object-cover object-top h-20"
+                                    />
+                                  </CardHeader>
+                                  <CardBody className="w-full overflow-hidden truncate flex justify-between pl-1 pr-6">
+                                    <Typography
+                                      variant="h5"
+                                      color="blue-gray"
+                                      className="mb-1"
+                                    >
+                                      Stephen Costa
+                                    </Typography>
+                                    <div className="flex gap-4">
+                                      <Chip
+                                        variant="ghost"
+                                        size="lg"
+                                        value="Pending"
+                                      />
+                                    </div>
+                                  </CardBody>
+                                </Card>
+                              </li>
+                              <li className="h-24">
+                                <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
+                                  <CardHeader
+                                    shadow={false}
+                                    floated={false}
+                                    className="m-0 shrink-0 rounded-r-none"
+                                  >
+                                    <img
+                                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                                      alt="card-image"
+                                      className="w-20 object-cover object-top h-20"
+                                    />
+                                  </CardHeader>
+                                  <CardBody className="w-full overflow-hidden truncate flex justify-between pl-1 pr-6">
+                                    <Typography
+                                      variant="h5"
+                                      color="blue-gray"
+                                      className="mb-1"
+                                    >
+                                      Stephen Costa
+                                    </Typography>
+                                    <div className="flex gap-4">
+                                      <Chip
+                                        variant="ghost"
+                                        color="red"
+                                        size="lg"
+                                        value="Rejected"
+                                      />
+                                    </div>
+                                  </CardBody>
+                                </Card>
+                              </li> */}
                             </ul>
                           </div>
                         </TabPanel>
+                        {/* Request Received Panel */}
                         <TabPanel
                           key="Request Received"
                           value="Request Received"
                         >
-                          <div className="mt-4">
-                            <ul className="flex flex-col">
-                              <li className="h-24">
+                          <div className="mt-4 overflow-scroll">
+                            <ul className="flex flex-col gap-4 max-h-[70vh]">
+                              {putRequests?.map((result) => {
+                                // console.log(result.firstName);
+                                return (
+                                  <FriendRecievedCard
+                                  image={result.profilePicture}
+                                    name={result.firstName}
+                                    id={result._id}
+                                  >
+                                    <button
+                                      name={
+                                        result.requestId +
+                                        "!~" +
+                                        result.senderId
+                                      }
+                                      className="px-4 border-[1.75px] rounded-lg hover:border-green-500 bg-green-100 text-black/70 text-sm font-bold"
+                                      onClick={onConsideredRequest}
+                                    >
+                                      CONSIDER
+                                    </button>
+                                    <button
+                                      name={result.requestId}
+                                      className="px-4 rounded-md hover:bg-red-200/50 text-black/70 text-sm font-bold"
+                                      onClick={onDeclinedRequest}
+                                    >
+                                      DECLINE
+                                    </button>
+                                  </FriendRecievedCard>
+                                );
+                              })}
+
+                              {/* <li className="h-24">
                                 <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
                                   <CardHeader
                                     shadow={false}
@@ -334,14 +693,24 @@ function ChatAndRequest() {
                                     </div>
                                   </CardBody>
                                 </Card>
-                              </li>
+                              </li> */}
                             </ul>
                           </div>
                         </TabPanel>
+                        {/* Favourites Panel */}
                         <TabPanel key="Favourites" value="Favourites">
-                          <div className="mt-4">
-                            <ul className="flex flex-col">
-                              <li className="h-24">
+                          <div className="mt-4 overflow-scroll">
+                            <ul className="flex flex-col gap-4 max-h-[70vh]">
+                              {favourites?.map((result) => {
+                                return (
+                                  <FavouriteCard
+                                  image={result.profilePicture}
+                                    name={result.firstName}
+                                    id={result._id}
+                                  />
+                                );
+                              })}
+                              {/* <li className="h-24">
                                 <Card className="w-full flex-row h-20 items-center gap-2 shadow-none">
                                   <CardHeader
                                     shadow={false}
@@ -401,13 +770,22 @@ function ChatAndRequest() {
                                     </div>
                                   </CardBody>
                                 </Card>
-                              </li>
+                              </li> */}
                             </ul>
                           </div>
                         </TabPanel>
                       </TabsBody>
                     </Tabs>
                   </ThemeProvider>
+                  <div className="absolute bottom-4 left-4 right-4 h-12 lg:hidden">
+                    <Button
+                      onClick={() => {
+                        navigate("/chat");
+                      }}
+                    >
+                      Chat List
+                    </Button>
+                  </div>
                 </div>
               </div>
               {/* {data && <Feed>{data[currentIndex]}</Feed>} */}
@@ -416,15 +794,88 @@ function ChatAndRequest() {
 
           {/* Chat Option Section */}
           <div
-            className={`relative lg:col-span-3 md:col-span-11 col-span-12 rounded-2xl md:mr-2 lg:mr-0 bg-card_light lg:rounded-tl-2xl lg:rounded-bl-2xl dark:bg-card_dark dark:text-bg_light`}
+            className={`h-[83vh] rounded-xl md:h-[88vh] relative lg:block lg:h-[88vh] lg:col-span-3 ${chatList}  bg-card_light md:rounded-tl-xl md:rounded-bl-xl text-bg_dark dark:bg-card_dark dark:text-bg_light`}
           >
-            <Typography variant="h4" className="mt-8 ml-8">
+            <Typography
+              variant="h4"
+              className="mt-8 ml-8 text-black dark:text-white"
+            >
               Chats
             </Typography>
 
             {/* Chat List */}
-            <div className="mt-8">
-              <ul className="flex flex-col mx-6">
+            <div className="mt-8 overflow-scroll">
+              <ul className="flex flex-col gap-4 mx-6 max-h-[74vh]">
+                {/* <li className="h-24">
+                  <Card className="w-full max-w-[48rem] flex-row h-20 items-center gap-2 shadow-none">
+                    <CardHeader
+                      shadow={false}
+                      floated={false}
+                      className="m-0 shrink-0 rounded-r-none"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                        alt="card-image"
+                        className="w-20 object-cover object-top h-20"
+                      />
+                    </CardHeader>
+                    <CardBody className="px-0 pt-2 pb-0 overflow-hidden truncate">
+                      <div>
+                        <Typography
+                          variant="h5"
+                          color="blue-gray"
+                          className="mb-1"
+                        >
+                          Stephen Costa
+                        </Typography>
+                        <Typography
+                          variant="small"
+                          color="gray"
+                          className=" font-extralight"
+                        >
+                          Like so many organizations these days
+                        </Typography>
+                      </div>
+                    </CardBody>
+                    <div className="h-6 w-8 mx-4 rounded-full flex justify-center items-center bg-button_light">
+                      <p className="text-xs font-semibold">2</p>
+                    </div>
+                  </Card>
+                </li>
+                <li className="h-24">
+                  <Card className="w-full max-w-[48rem] flex-row h-20 items-center gap-2  shadow-none">
+                    <CardHeader
+                      shadow={false}
+                      floated={false}
+                      className="m-0 w-3/12  shrink-0 rounded-r-none"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                        alt="card-image"
+                        className="w-20 object-cover object-top h-20"
+                      />
+                    </CardHeader>
+                    <CardBody className="px-0 pt-2 pb-0 overflow-hidden truncate">
+                      <Typography
+                        variant="h5"
+                        color="blue-gray"
+                        className="mb-1"
+                      >
+                        Stephen Costa
+                      </Typography>
+                      <Typography
+                        variant="small"
+                        color="gray"
+                        className=" font-extralight"
+                      >
+                        Like so many organizations these days
+                      </Typography>
+                    </CardBody>
+                    <div className="h-6 w-8 mx-4 rounded-full flex justify-center items-center bg-button_light">
+                      <p className="text-xs font-semibold">2</p>
+                    </div>
+                  </Card>
+                </li>
                 <li className="h-24">
                   <Card className="w-full max-w-[48rem] flex-row h-20 items-center gap-2 shadow-none">
                     <CardHeader
@@ -495,12 +946,175 @@ function ChatAndRequest() {
                     </div>
                   </Card>
                 </li>
+                <li className="h-24">
+                  <Card className="w-full max-w-[48rem] flex-row h-20 items-center gap-2 shadow-none">
+                    <CardHeader
+                      shadow={false}
+                      floated={false}
+                      className="m-0 shrink-0 rounded-r-none"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                        alt="card-image"
+                        className="w-20 object-cover object-top h-20"
+                      />
+                    </CardHeader>
+                    <CardBody className="px-0 pt-2 pb-0 overflow-hidden truncate">
+                      <div>
+                        <Typography
+                          variant="h5"
+                          color="blue-gray"
+                          className="mb-1"
+                        >
+                          Stephen Costa
+                        </Typography>
+                        <Typography
+                          variant="small"
+                          color="gray"
+                          className=" font-extralight"
+                        >
+                          Like so many organizations these days
+                        </Typography>
+                      </div>
+                    </CardBody>
+                    <div className="h-6 w-8 mx-4 rounded-full flex justify-center items-center bg-button_light">
+                      <p className="text-xs font-semibold">2</p>
+                    </div>
+                  </Card>
+                </li>
+                <li className="h-24">
+                  <Card className="w-full max-w-[48rem] flex-row h-20 items-center gap-2  shadow-none">
+                    <CardHeader
+                      shadow={false}
+                      floated={false}
+                      className="m-0 w-3/12  shrink-0 rounded-r-none"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                        alt="card-image"
+                        className="w-20 object-cover object-top h-20"
+                      />
+                    </CardHeader>
+                    <CardBody className="px-0 pt-2 pb-0 overflow-hidden truncate">
+                      <Typography
+                        variant="h5"
+                        color="blue-gray"
+                        className="mb-1"
+                      >
+                        Stephen Costa
+                      </Typography>
+                      <Typography
+                        variant="small"
+                        color="gray"
+                        className=" font-extralight"
+                      >
+                        Like so many organizations these days
+                      </Typography>
+                    </CardBody>
+                    <div className="h-6 w-8 mx-4 rounded-full flex justify-center items-center bg-button_light">
+                      <p className="text-xs font-semibold">2</p>
+                    </div>
+                  </Card>
+                </li>
+                <li className="h-24">
+                  <Card className="w-full max-w-[48rem] flex-row h-20 items-center gap-2 shadow-none">
+                    <CardHeader
+                      shadow={false}
+                      floated={false}
+                      className="m-0 shrink-0 rounded-r-none"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                        alt="card-image"
+                        className="w-20 object-cover object-top h-20"
+                      />
+                    </CardHeader>
+                    <CardBody className="px-0 pt-2 pb-0 overflow-hidden truncate">
+                      <div>
+                        <Typography
+                          variant="h5"
+                          color="blue-gray"
+                          className="mb-1"
+                        >
+                          Stephen Costa
+                        </Typography>
+                        <Typography
+                          variant="small"
+                          color="gray"
+                          className=" font-extralight"
+                        >
+                          Like so many organizations these days
+                        </Typography>
+                      </div>
+                    </CardBody>
+                    <div className="h-6 w-8 mx-4 rounded-full flex justify-center items-center bg-button_light">
+                      <p className="text-xs font-semibold">2</p>
+                    </div>
+                  </Card>
+                </li>
+                <li className="h-24">
+                  <Card className="w-full max-w-[48rem] flex-row h-20 items-center gap-2  shadow-none">
+                    <CardHeader
+                      shadow={false}
+                      floated={false}
+                      className="m-0 w-3/12  shrink-0 rounded-r-none"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+                        alt="card-image"
+                        className="w-20 object-cover object-top h-20"
+                      />
+                    </CardHeader>
+                    <CardBody className="px-0 pt-2 pb-0 overflow-hidden truncate">
+                      <Typography
+                        variant="h5"
+                        color="blue-gray"
+                        className="mb-1"
+                      >
+                        Stephen Costa
+                      </Typography>
+                      <Typography
+                        variant="small"
+                        color="gray"
+                        className=" font-extralight"
+                      >
+                        Like so many organizations these days
+                      </Typography>
+                    </CardBody>
+                    <div className="h-6 w-8 mx-4 rounded-full flex justify-center items-center bg-button_light">
+                      <p className="text-xs font-semibold">2</p>
+                    </div>
+                  </Card>
+                </li> */}
+                {chatListData?.map((result) => {
+                  return (
+                    <Conversation
+                    image={result.profilePicture}
+                    firstName={result.firstName}
+                    lastName={result.lastName}
+                      onClick={() => {
+                        localStorage.setItem('convo',result.chatId)
+                        localStorage.setItem('convo-you',result.userId)
+                        localStorage.setItem('profile',result.profilePicture)
+                        localStorage.setItem('firstName',result.firstName)
+                        localStorage.setItem('lastName',result.lastName)
+                        navigate("/chat");
+                        handleChatClick;
+                      }}
+                    />
+                  );
+                })}
               </ul>
-            </div>
 
-            {/* Request List */}
-            <div className="absolute bottom-4 left-4 right-4 h-12">
-              <Button>Request List</Button>
+              {/* Request List */}
+              {/* <div className="block absolute bottom-4 left-4 right-4 h-12">
+              <Button
+                onClick={() => {
+                  navigate("/chat-request");
+                }}
+              >
+                Request List
+              </Button> */}
             </div>
           </div>
         </div>

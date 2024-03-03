@@ -1,14 +1,35 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
+
 import Header from "../components/Header";
 import LeftBar from "../components/LeftBar";
 import Feed from "../components/Feed";
 import MatchMeter from "../components/MatchMeter";
 import ProfileSettings from "../components/ProfileSettings";
 import IconButton from "../components/IconButton";
+import PremiumDialog from "../components/BuyPlanDialog";
+import BuyPlanDialog from "../components/BuyPlanDialog";
+import LoadingSkeleton from "../components/LoadingSkeleton";
+import axios from "axios";
+
 
 function MatchFeed() {
+
+  const navigate = useNavigate();
+  const [cookies, removeCookie] = useCookies([]);
+
+  // useEffect(() => {
+  //   const verifyCookie = async () => {
+  //     if (!cookies.token) {
+  //       navigate("/");
+  //     }
+  //   };
+  //   verifyCookie();
+  // }, []);
+
   const [mvalue, setMvalue] = useState("col-span-2");
-  const [fvalue, setFvalue] = useState("col-span-9");
+  const [fvalue, setFvalue] = useState("md:col-span-9");
   const [click, setClick] = useState(false);
   const [data, setData] = useState(null);
 
@@ -81,20 +102,29 @@ function MatchFeed() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(
-        "http://192.168.1.7:3000/api/account/search/partner",
+      const result = await axios.post(
+        "http://localhost:3000/user/match-feed",
+        "",
         {
-          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
         }
       );
-      const json = await response.json();
-
-      setData(json.data.documents);
+      // const response = await fetch("http://localhost:3000/user/match-feed", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ id: "65913b3acc825525476246e5" }),
+      // });
+      // const json = await response.json();
+      setTimeout(() => {
+        setData(result.data.message);
+      }, "300");
     } catch (error) {
       console.log(error);
     }
   };
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -102,11 +132,11 @@ function MatchFeed() {
   const handleClick = (click) => {
     setClick(click);
     if (click) {
-      setFvalue("col-span-7");
-      setMvalue("col-span-4");
+      setFvalue("md:col-start-2 md:col-end-9");
+      setMvalue("md:col-span-4");
     } else {
-      setFvalue("col-span-9");
-      setMvalue("col-span-2");
+      setFvalue("md:col-start-2 md:col-end-11");
+      setMvalue("md:col-span-2");
     }
   };
 
@@ -114,23 +144,35 @@ function MatchFeed() {
     <>
       <div className="flex flex-col h-screen w-full bg-bg_light dark:bg-bg_dark">
         <Header />
-        <div className="grid grid-cols-12 h-screen mb-10">
-          <div className="col-span-1 lg:pr-2 md:pr-1">
-            <LeftBar activeAt={1}/>
+        <div className="grid grid-cols-1 md:grid-cols-12 h-full mb-10 gap-2">
+          
+          <div className="col-span-1 md:col-span-1 md:h-[88vh] md:order-first order-3">
+            <LeftBar activeAt={1} />
           </div>
           {/* <div className="h-full col-span-11">
             <ProfileSettings/>
           </div> */}
-          <div className={`h-full ${fvalue} lg:pr-2 md:pr-1`}>
-            <div className="hidden md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark">
-              <div className="md:h-12 flex justify-between items-center mx-6">
-                <span>Personal Preferences</span>
-                {data && (
-                  <div className=" text-bg_dark dark:text-bg_light  mt-4">
-                    <button
-                      disabled={currentIndex === 0}
-                      onClick={handlePrev}
+          <div className={` col-span-1 md:h-[88vh] ${fvalue}`}>
+            <div className="md:flex md:flex-col md:h-full rounded-xl bg-card_light dark:bg-card_dark ">
+              <div className="md:h-12 flex justify-between items-center mx-6 my-4">
+                <span>
+                  <BuyPlanDialog>
+                    <svg
+                      className="w-4 h-4 mx-2"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
                     >
+                      <path
+                        d="M21 18V21H19V18H17V16H23V18H21ZM5 18V21H3V18H1V16H7V18H5ZM11 6V3H13V6H15V8H9V6H11ZM11 10H13V21H11V10ZM3 14V3H5V14H3ZM19 14V3H21V14H19Z"
+                        fill="currentColor"
+                      ></path>
+                    </svg>
+                    <span className="mr-2">Personal Preference</span>
+                  </BuyPlanDialog>
+                </span>
+                {data && (
+                  <div className=" text-bg_dark dark:text-bg_light mt-4">
+                    <button disabled={currentIndex === 0} onClick={handlePrev}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -168,14 +210,18 @@ function MatchFeed() {
                   </div>
                 )}
               </div>
-              {data && <Feed>{data[currentIndex]}</Feed>}
+              {data ? <Feed>{data[currentIndex]}</Feed> : <LoadingSkeleton />}
             </div>
           </div>
           <div
-            className={`relative ${mvalue}`}
+            className={`relative col-span-1 ${mvalue} md:h-[88vh] md:order-3`}
             onClick={() => handleClick(!click)}
           >
-            <MatchMeter clicked={click} />
+            <div className="pb-24 md:pb-0 rounded-xl md:h-full md:grid md:grid-cols-1 md:w-full md:rounded-bl-xl md:rounded-tl-xl bg-card_light dark:bg-card_dark">
+              {data && (
+                <MatchMeter clicked={click}>{data[currentIndex]}</MatchMeter>
+              )}
+            </div>
           </div>
         </div>
       </div>

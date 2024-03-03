@@ -2,9 +2,10 @@ import React from "react";
 import { ListItem, ListItemPrefix } from "@material-tailwind/react";
 
 function ListingItem({ children, selected, completed }) {
+	
 	if (selected && completed) {
 		return (
-			<ListItem className="bg-button_light hover:bg-button_light">
+			<ListItem className="bg-button_light hover:bg-button_light dark:bg-button_dark hover:dark:bg-button_dark">
 				<ListItemPrefix>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +20,7 @@ function ListingItem({ children, selected, completed }) {
 		);
 	} else if (selected) {
 		return (
-			<ListItem className="bg-button_light hover:bg-button_light">
+			<ListItem className="bg-button_light hover:bg-button_light/30 dark:bg-button_dark dark:hover:bg-button_dark dark:text-white">
 				<ListItemPrefix>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +35,7 @@ function ListingItem({ children, selected, completed }) {
 		);
 	} else if (completed) {
 		return (
-			<ListItem className="hover:bg-button_light">
+			<ListItem className="hover:bg-button_light/30 dark:hover:bg-button_dark/30 dark:text-white">
 				<ListItemPrefix>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -49,7 +50,7 @@ function ListingItem({ children, selected, completed }) {
 		);
 	} else {
 		return (
-			<ListItem className=" hover:bg-button_light">
+			<ListItem className=" hover:bg-button_light/30 dark:hover:bg-button_dark/30 dark:text-white">
 				<ListItemPrefix>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"

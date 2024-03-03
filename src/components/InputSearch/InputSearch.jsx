@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import "./InputSearch.css";
 import useFormContext from "../../hooks/useFormContext";
 
-function InputSearch({ onChangeValue, list, keyType, placeholder, id }) {
+function InputSearch({ onChangeValue, list, keyType, placeholder, id,value }) {
+  console.log("inputsearch: "+value)
   const { data,handleChange } = useFormContext();
   const [searchResultOpen, setSearchResultOpen] = useState(false);
   const [results, setResults] = useState([]);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(value);
   const inputsearchRef = useRef();
 
   const handleKeyPress = (event, results) => {
@@ -16,7 +17,7 @@ function InputSearch({ onChangeValue, list, keyType, placeholder, id }) {
       // setInput(results);
       // setSearchResultOpen(false);
       console.log(results);
-      //onChangeValue(results);
+      // onChangeValue(results);
     }
   };
 
@@ -104,8 +105,8 @@ function InputSearch({ onChangeValue, list, keyType, placeholder, id }) {
           id={id}
           type="text"
           className="flex w-full bg-bg_light border border-button_light hover:ring-4 hover:ring-button_light text-gray-900 text-lg rounded-lg p-2.5 dark:bg-[#17212e] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:hover:ring-4 dark:hover:ring-button_dark"
-          placeholder={placeholder ? placeholder : "Type Here"}
-          value={input}
+          placeholder={placeholder ? placeholder : "Select"}
+          value={input || value}
           onClick={(e) => {
             handleClick(e.target.value)
             // handleItemChange(e.target.value);
