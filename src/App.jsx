@@ -41,9 +41,13 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Home />} />
-        {isAuthenticated ? (
+        <Route path="/" element={
+          <getToken>
+            <MatchFeed />
+          </getToken>
+        } />
+        {/* {isAuthenticated ? (
           <>
-            <Route path="/" element={<MatchFeed />} />
             <Route exact path="/matchfeed" element={<MatchFeed />} />
             <Route exact path="/chat-request" element={<ChatAndRequest />} />
             <Route exact path="/chat" element={<Chat />} />
@@ -59,7 +63,7 @@ function App() {
           </>
         ) : (
           <Route path="/*" element={<Home />} />
-        )}
+        )} */}
       </Routes>
     </BrowserRouter>
   );

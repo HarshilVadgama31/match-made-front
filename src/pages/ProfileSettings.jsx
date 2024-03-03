@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardBody,
   CardFooter,
-  Alert
+  Alert,
 } from "@material-tailwind/react";
 import InputField from "../components/InputField";
 import InputChip from "../components/InputChip";
@@ -21,6 +21,7 @@ import { useCookies } from "react-cookie";
 import useFormContext from "../hooks/useFormContext";
 import Button from "../components/Button";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function ProfileSettings() {
   const {
@@ -35,23 +36,116 @@ function ProfileSettings() {
     handleChange,
   } = useFormContext();
 
+  const [userData, setUserData] = useState({
+    phone: "",
+    gender: "",
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
+    age: "",
+    height: "",
+    weight: "",
+    dob: "",
+    pob: "",
+    horoscope: "",
+    city: "",
+    state: "",
+    religion: "",
+    community: "",
+    motherTongue: "",
+    familyType: "",
+    familyCity: "",
+    qualification: "",
+    university: "",
+    profession: "",
+    organization: "",
+    annualIncome: "",
+    maritialStatus: "",
+    diet: "",
+    hobby: "",
+  });
+
+  const navigate = useNavigate();
+
+  const handleDiscard = () => {
+    navigate("/matchfeed");
+  };
+
   const handlePrev = () => setPage((prev) => prev - 1);
 
   const handleNext = () => setPage((prev) => prev + 1);
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   // const data2 = new FormData(data);
+
+  //   // try {
+  //   data.userId = "6572343b20e0ba4957caf1fa";
+  //   const res = await fetch("http://localhost:3000/user/update", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify(data),
+  //   });
+
+  //   console.log(await res.json());
+
+  //   // .post("http://192.168.56.1:3000/user/create", data)
+  //   // .then((response) => {
+  //   //   console.log(response);
+  //   // })
+  //   // .catch((error) => {
+  //   //   console.log(error);
+  //   // });
+  //   //   console.log(res);
+  //   // } catch (error) {
+  //   //   console.log(error);
+  //   // }
+  //   // console.log(JSON.stringify(data));
+
+  //   // console.log(data);
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(data);
     // const data2 = new FormData(data);
 
     // try {
-    data.userId = "6572343b20e0ba4957caf1fa";
-    const res = await fetch("http://localhost:3000/user/update", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
 
-    console.log(await res.json());
+    // data.userId = "6572343b20e0ba4957caf1fa";
+    const formData = new FormData();
+
+    // formData.append("P8ProfilePicture", data.P8ProfilePicture);
+    // data.P8ProfilePicture = null;
+    formData.append("OtherData", JSON.stringify(data));
+
+    const result = await axios.post(
+      "http://localhost:3000/user/update",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      }
+    );
+    console.log(result.data);
+
+    if (result.data.message.modifiedCount >= 1) {
+      localStorage.setItem("horoscope", result.data.user.horoscope);
+      navigate("/matchfeed");
+    } else {
+      setOpenAlert(!openAlert);
+    }
+
+    // const res = await fetch("http://localhost:3000/user/update", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "multipart/form-data" },
+    //   body: JSON.stringify(data),
+    // });
+
+    // console.log(await user.json());
 
     // .post("http://192.168.56.1:3000/user/create", data)
     // .then((response) => {
@@ -71,7 +165,7 @@ function ProfileSettings() {
 
   const [alertOpen, setAlertOpen] = useState(false);
   const [cookies, removeCookie] = useCookies([]);
-  const [userData, setUserData] = useState(null);
+  // const [userData, setUserData] = useState(null);
 
   const loadData = async () => {
     // console.log();
@@ -85,6 +179,7 @@ function ProfileSettings() {
       });
       console.log(result.data.message);
       console.log(data);
+      
       setUserData(result.data.message);
       // setDetails(result.data.message[0]);
       // console.log(details)
@@ -102,7 +197,7 @@ function ProfileSettings() {
   const handlePreview = (e) => {
     setProfilePic(URL.createObjectURL(e.target.files[0]));
     // handleChange(e);
-    setAlertOpen(true)
+    setAlertOpen(true);
   };
 
   return (
@@ -941,7 +1036,7 @@ function ProfileSettings() {
 
                       <button
                         type="button"
-                        onClick={handleNext}
+                        onClick={handleDiscard}
                         disabled={disableNext}
                         className={`flex p-2 rounded-xl w-full lg:w-1/6 border-solid border-2 text-bg_dark dark:text-bg_light h-full font-light items-center justify-center bg-button_light focus:z-10 focus:ring-2 focus:ring-button_dark dark:bg-button_dark dark:focus:z-10 dark:focus:ring-2 dark:focus:ring-button_dark dark:focus:border-bg_dark ${nextHide}`}
                       >
@@ -988,21 +1083,21 @@ function ProfileSettings() {
                 />
               </label>
               <Alert
-              open={alertOpen}
-              onClose={() => setAlertOpen(false)}
-              color="white"
-              animate={{
-                mount: { y: 0 },
-                unmount: { y: 100 },
-              }}
-            >
-              Updated successfully
-              <Link to="/matchfeed" preventScrollReset={true}>
-                <span className="mx-4 py-1 px-4 bg-white/20 hover:bg-white/25 rounded-2xl">
-                  Home
-                </span>
-              </Link>
-            </Alert>
+                open={alertOpen}
+                onClose={() => setAlertOpen(false)}
+                color="white"
+                animate={{
+                  mount: { y: 0 },
+                  unmount: { y: 100 },
+                }}
+              >
+                Updated successfully
+                <Link to="/matchfeed" preventScrollReset={true}>
+                  <span className="mx-4 py-1 px-4 bg-white/20 hover:bg-white/25 rounded-2xl">
+                    Home
+                  </span>
+                </Link>
+              </Alert>
               {/* <div class="flex items-center justify-center w-full">
                 <label
                   for="dropzone-file"

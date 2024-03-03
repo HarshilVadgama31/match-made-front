@@ -17,7 +17,7 @@ function InputSearch({ onChangeValue, list, keyType, placeholder, id,value }) {
       // setInput(results);
       // setSearchResultOpen(false);
       console.log(results);
-      //onChangeValue(results);
+      // onChangeValue(results);
     }
   };
 
@@ -105,7 +105,7 @@ function InputSearch({ onChangeValue, list, keyType, placeholder, id,value }) {
           id={id}
           type="text"
           className="flex w-full bg-bg_light border border-button_light hover:ring-4 hover:ring-button_light text-gray-900 text-lg rounded-lg p-2.5 dark:bg-[#17212e] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:hover:ring-4 dark:hover:ring-button_dark"
-          placeholder={placeholder ? placeholder : "Type Here"}
+          placeholder={placeholder ? placeholder : "Select"}
           value={input || value}
           onClick={(e) => {
             handleClick(e.target.value)
